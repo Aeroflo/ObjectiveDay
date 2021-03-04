@@ -6,22 +6,28 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.*
+import android.graphics.Paint
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
+import android.os.*
+import android.provider.Settings
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.example.objectiveday.NotificationThread.NotificationHandler
 import com.example.objectiveday.adapters.ObjectiveListAdapter
 import com.example.objectiveday.controllers.ObjectiveHandlers
+import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.database.ObjectiveDBHelper
 import com.example.objectiveday.databinding.ObjectiveBinding
-import com.example.objectiveday.databinding.ObjectiveListLayoutBinding
 import com.example.objectiveday.models.ObjectiveModel
-import kotlinx.android.synthetic.main.objective_list_layout.*
-import kotlinx.android.synthetic.main.objective_list_layout.view.*
+import com.example.objectiveday.webservices.apimodels.APIToken
+import com.example.objectiveday.webservices.apimodels.APIUserDeviceModel
+import com.example.objectiveday.webservices.retrofit.RestAPIService
+import com.google.android.material.chip.Chip
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,110 +44,183 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_main)
 
-        //load objectives
-        //this.objectiveList = dbHelper.getAllObjective()
+        setContentView(R.layout.activity_main);
 
-        val mainBinding: ObjectiveListLayoutBinding  = DataBindingUtil.setContentView(this, R.layout.objective_list_layout)
+        val urlText : EditText = findViewById(R.id.ip)
+        urlText.setText("http://192.168.1.73:8080")
+
+        //API
+        val apiService = RestAPIService(urlText.text.toString())
+
+        //VIEWS
+        val issues : TextView = findViewById(R.id.issues);
+        val emailText = findViewById(R.id.edtUserEmail) as EditText
+        val signInBtn : Button = findViewById(R.id.signin)
+        val newUserChip : Chip = findViewById(R.id.newuser)
 
 
-
-        val list = arrayListOf<ObjectiveModel>()
-        for (i in 0..100) {
-            var objectiveModel : ObjectiveModel = ObjectiveModel.Builder()
-                .withDescription("This is a new objective test "+i)
-                .withId(0)
-                .withDayChecker(i)
-                .withNbTriggered(100)
-                .withNbDone(i)
-                .build()
-
-            //objectiveModel.getNextDate(0)
-            list.add(objectiveModel)
+        newUserChip.setOnClickListener(){
+            if(newUserChip.isChecked){
+                newUserChip.isCheckedIconVisible = true
+                emailText.visibility = View.VISIBLE
+                signInBtn.text = "REGISTER: user / device"
+                signInBtn.invalidate()
+                emailText.invalidate()
+            }else{
+                emailText.visibility = View.GONE
+                emailText.invalidate()
+                signInBtn.text = "SIGN IN"
+                signInBtn.invalidate()
+            }
         }
-        this.objectiveList = list
-        listAdapter = ObjectiveListAdapter(applicationContext, this.objectiveList)
+
+        val registerDevice : Chip = findViewById(R.id.registerdevice)
+        registerDevice.setOnClickListener(){
+            if(registerDevice.isChecked){
+                registerDevice.isCheckedIconVisible = true
+                emailText.visibility = View.VISIBLE
+                emailText.invalidate()
+                signInBtn.text = "REGISTER: device"
+                signInBtn.invalidate()
+            }else{
+                emailText.visibility = View.GONE
+                emailText.invalidate()
+                signInBtn.text = "SIGN IN"
+                signInBtn.invalidate()
+            }
+        }
 
 
-        mainBinding.root.listview.adapter = listAdapter
-       /*mainBinding.root.listview.setOnItemClickListener(){
-                adapterView, view, position: Int, id: Long ->
 
-            callPopUpObjective(adapterView.getItemAtPosition(position))
-        }*/
-        mainBinding.root.listview.setOnItemClickListener(AdapterView.OnItemClickListener { parent, view, position, id ->
-            System.out.println("Touch :"+id)
-        })
+        signInBtn.setOnClickListener{
+            var username : String = ""
+            var password : String = ""
+            var email : String = ""
 
-        //mainBinding.root.listview.setOnTouch
-        /*mainBinding.root.listview.setOnTouchListener( object : View.OnTouchListener {
+            var  allIsSet : Boolean = true;
 
-            var downX: Float? = null
-            var upX : Float? = null
-            val deltaX : Float = 100.0F
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+            val shape = ShapeDrawable(RectShape())
+            shape.paint.color = Color.RED
+            shape.paint.style = Paint.Style.STROKE
+            shape.paint.strokeWidth = 3f
 
-                when (event?.action) {
-                    MotionEvent.ACTION_MOVE  -> {}
-                    MotionEvent.ACTION_DOWN -> {downX = event.getRawX()}
-                    MotionEvent.ACTION_UP -> {
-                        val x : Float = event.getRawX();
-                        var foundDeltaX :Float? = downX?.minus(x)
-                        if(foundDeltaX != null && this.deltaX < foundDeltaX){
-                            System.out.println("Left")
-                        }else if( foundDeltaX != null && this.deltaX > foundDeltaX){
-                            System.out.println("Right")
+            val userNameText = findViewById(R.id.edtUserName) as EditText
+            if(userNameText.text == null || userNameText.text.toString().isEmpty()){
+                userNameText.setBackground(shape)
+                userNameText.invalidate()
+                allIsSet = false
+            }else{
+                username = userNameText.text.toString()
+            }
+
+            val passwordText = findViewById(R.id.edtUserPassword) as EditText
+            if(passwordText.text == null || passwordText.text.toString().isEmpty()){
+                passwordText.setBackground(shape)
+                passwordText.invalidate()
+                allIsSet = false
+            }else{
+                password = passwordText.text.toString()
+            }
+
+            if(newUserChip.isChecked || registerDevice.isChecked) {
+                if (emailText.text == null || emailText.text.toString().isEmpty()) {
+                    emailText.setBackground(shape)
+                    emailText.invalidate()
+                    allIsSet = false
+                } else {
+                    email = emailText.text.toString()
+                }
+            }
+
+
+            if(allIsSet) {
+                val androidSerialNumber: String = Settings.Secure.getString(
+                    getContentResolver(),
+                    Settings.Secure.ANDROID_ID
+                );
+
+
+                val url : String = urlText.text.toString();
+                if(newUserChip.isChecked){
+                    val userDeviceModel: APIUserDeviceModel=
+                        APIUserDeviceModel(username, androidSerialNumber, password, email)
+                    apiService.fullRegister(userDeviceModel){
+                        if(it == null){
+                            if(it == null){
+                                issues.setText("Cannot create account / device!")
+                                issues.visibility = View.VISIBLE
+                                issues.invalidate()
+                            }
+                        }
+                        else{
+                            Toast.makeText(this.applicationContext, "User/Device created", Toast.LENGTH_LONG).show()
+                            //reset
+                            issues.visibility = View.GONE
+                            newUserChip.isChecked = false
+                            emailText.visibility = View.GONE
+                            emailText.invalidate()
+                            signInBtn.text = "SIGN IN"
+                            signInBtn.invalidate()
                         }
                     }
-                    //MotionEvent.ACTION_
-                    //MotionEvent.ACTION_DOWN -> //Do Something
+                }else if(registerDevice.isChecked){
+                    val userDeviceModel: APIUserDeviceModel=
+                        APIUserDeviceModel(username, androidSerialNumber, password, null)
+                }else {
+
+                    try{
+                        Thread {
+                            val userDeviceModel: APIUserDeviceModel =
+                                APIUserDeviceModel(username, androidSerialNumber, password, null)
+                            TokenSingleton.instance.userDeviceModel = userDeviceModel
+                            TokenSingleton.instance.url = urlText.text.toString()
+                            var token: APIToken? = TokenSingleton.instance.getToken()
+                            if (token == null) {
+                                runOnUiThread {
+                                    issues.setText("Invalid user name and password!")
+                                    issues.visibility = View.VISIBLE
+                                    issues.invalidate()
+                                }
+                                vibratePhoneWrong()
+                            } else {
+                                runOnUiThread {
+                                    Toast.makeText(
+                                        this.applicationContext,
+                                        "Authenticated ",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                val myIntent = Intent(this, ObjectiveView::class.java)
+                                this.startActivity(myIntent)
+
+                            }
+                        }.start()
+                    }catch(e : java.lang.Exception){
+                        issues.setText("Internal error :"+e.message)
+                        issues.visibility = View.VISIBLE
+                        issues.invalidate()
+                    }
                 }
-                return v?.onTouchEvent(event) ?: true
+            }
+            else{
+                vibratePhoneWrong()
             }
 
 
-        })*/
+        }
+    }
 
-
-
-        /*binding.setOnItemClick { adapterView, view, position, l ->
-            Toast.makeText(this, listAdapter.kemonoFriends[position].kemonoName, Toast.LENGTH_SHORT).show()
-        }*/
-
-        //mainBinding.objectiveMainModel = objectiveModel
-
-
-        /*var userModel = UserModel()
-        userModel.uName = "Androidian"
-        userModel.pwd = "123456"
-        mainBinding.userModel = userModel*/
-
-        /*fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }*/
-
-
-        /*val mOnNavigationItemSelectedListener =  .OnNavigationItemSelectedListener{ item ->
-            when(item.itemId){
-                R.id.action_new -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.action_settings -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-            false
-        }*/
-
-        //toolbar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        createNotificationChannel("com.example.objectiveday", "Notif Test", "Example")
-        //sendNotification()
-
-        NotificationHandler.setUpHandler(notificationManager, this@MainActivity)
+    fun vibratePhoneWrong(){
+        val vibrator = this.applicationContext?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= 26) {
+            val mVibratePattern =
+                longArrayOf(0, 100)
+            val effect = VibrationEffect.createWaveform(mVibratePattern, -1)
+            vibrator.vibrate(effect);
+        } else {
+            vibrator.vibrate(200)
+        }
     }
 
     private fun createNotificationChannel(id:String, name:String, description:String){
@@ -170,7 +249,6 @@ class MainActivity : AppCompatActivity() {
 
         notificationManager?.notify(notificationID, notification)
     }
-
 
     private fun callObjectiveView(objectiveModel: Any?) {
         if(objectiveModel is ObjectiveModel){
@@ -320,11 +398,18 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         when(item.itemId){
-            R.id.action_new -> {
-                var newObjectiveModel : ObjectiveModel = ObjectiveModel.Builder().build()
-                var objectiveIntent = Intent(this, ObjectiveView::class.java)
-                objectiveIntent.putExtra("objectiveModel", newObjectiveModel)
-                startActivity(objectiveIntent)
+            R.id.action_settings -> {
+                System.out.println("Settings")
+                var settings :LinearLayout = findViewById(R.id.main_settings)
+                settings.setVisibility(View.VISIBLE);
+                settings.invalidate();
+                return true
+            }
+            R.id.demo -> {
+                    Toast.makeText(this.applicationContext, "Access demo ", Toast.LENGTH_LONG).show()
+                    val myIntent = Intent(this, ObjectiveView::class.java)
+                    myIntent.putExtra("isDemo", "true") //Optional parameters
+                    this.startActivity(myIntent)
                 return true
             }
             else -> return super.onOptionsItemSelected(item);

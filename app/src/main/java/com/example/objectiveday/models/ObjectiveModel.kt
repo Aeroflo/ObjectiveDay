@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.databinding.Bindable
 import androidx.databinding.InverseMethod
+import com.example.objectiveday.Utils
 import java.io.Serializable
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -44,7 +45,7 @@ class ObjectiveModel  private constructor (
     ){
 
         fun withId(id : Long?) = apply { this.id = id }
-        fun withParentId(parentId: Long?) {this.parentId = parentId}
+        fun withParentId(parentId: Long?) =  apply {this.parentId = parentId}
         fun withDescription(description: String) = apply { this.description = description }
         fun withDayChecker(dayChecker: Int)  = apply{this.dayChecker = dayChecker}
         fun withTime(time: LocalTime?) = apply { this.time = time }
@@ -54,7 +55,7 @@ class ObjectiveModel  private constructor (
         fun withNbDone(nbDone: Int) = apply { this.nbDone = nbDone }
         fun withChildren(children: Array<ObjectiveModel>) = apply { this.children = children }
 
-        fun build() = ObjectiveModel(id, parentId, description, dayChecker, time, isActive,  isNotifiable, nbTriggered, nbDone)
+        fun build() = ObjectiveModel(id, parentId, description, dayChecker, time, isActive,  isNotifiable, nbTriggered, nbDone, children)
     }
 
     fun integerToBinary(value: Int, index : Int) : Boolean{
@@ -169,14 +170,15 @@ class ObjectiveModel  private constructor (
         }
     }
 
-    var dtf:DateTimeFormatter = DateTimeFormatter.ofPattern("E dd MMM yyyy '@'HH:mm" )
+
     fun getNextDateRec(recurrence: Int) : String{
         val nextDates : Set<LocalDateTime> = getNextDateList(false) ?: return "NONE"
         if(nextDates.isEmpty()) return "NONE"
 
         if(recurrence > nextDates.size) return "NONE"
 
-        val dateFormat: String = dtf.format(nextDates.take(3).get(recurrence))
+
+        val dateFormat: String = Utils.localDateTimeToString(nextDates.take(3).get(recurrence), "E dd MMM yyyy '@'HH:mm")
         return dateFormat
     }
 
@@ -209,9 +211,4 @@ class ObjectiveModel  private constructor (
         this.nextDates = nextDates
         return this.nextDates
     }
-
-    var localDateTimeComparator : Comparator<LocalDateTime> = Comparator(){ localDateTime: LocalDateTime, localDateTime1: LocalDateTime ->
-        localDateTime.compareTo(localDateTime1)
-    }
-
 }

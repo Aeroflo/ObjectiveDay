@@ -13,6 +13,7 @@ import androidx.core.view.isGone
 import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import com.example.objectiveday.R
+import com.example.objectiveday.controllers.ObjectiveBindingController
 import com.example.objectiveday.databinding.ObjectiveBinding
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
 import com.example.objectiveday.models.ObjectiveModel
@@ -26,14 +27,17 @@ class ObjectiveListAdapter(private val context: Context,
     //Map position view
     var mapObjectiveView : MutableMap<Int, ObjectiveMainObjectLayoutBinding> = HashMap()
 
-    fun updateDateSource(newList: List<ObjectiveModel>){
+    fun updateDataSource(newList: List<ObjectiveModel>){
         this.dataSource=newList;
+        this.notifyDataSetChanged()
     }
+
+
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         //need to bind here
 
-        val binding: ObjectiveMainObjectLayoutBinding
+        var binding: ObjectiveMainObjectLayoutBinding
         if (convertView == null) {
             binding = ObjectiveMainObjectLayoutBinding.inflate(LayoutInflater.from(context), parent, false)
             binding.root.tag = binding
@@ -41,38 +45,13 @@ class ObjectiveListAdapter(private val context: Context,
             binding = convertView.tag as ObjectiveMainObjectLayoutBinding
         }
 
-        binding?.objectiveMainModel = getItem(position) as ObjectiveModel
-
-        binding.details.setOnClickListener {
-            val view = binding.moreDetailsLayout
-            val button = binding.details
-            if(view.visibility == View.GONE){
-                collapseOtherDetails(position)
-                view.visibility = View.VISIBLE
-                val animation = AnimationUtils.loadAnimation(context, R.anim.slide_left)
-                view.startAnimation(animation)
-            } else{
-                val animation = AnimationUtils.loadAnimation(context, R.anim.slide_right_out)
-                view.startAnimation(animation)
-                Handler().postDelayed({
-                    view.visibility = View.GONE
-                }, 200)
-            }
-        }
-
-        binding.monday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.tuesday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.wednesday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.thursday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.friday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-
-        binding.saturday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekEndCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.sunday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekEndCheckBoxAndValidate(binding, buttonView, isChecked) }
-
-        binding.weekday.setOnClickListener(){view -> verifySwitchAndValidate(binding, view)}
-        binding.weekend.setOnClickListener{view -> verifySwitchAndValidate(binding, view) }
+        var controller : ObjectiveBindingController = ObjectiveBindingController(this.context)
+        binding = controller.prepareBinding(binding, getItem(position) as ObjectiveModel)!!
+        //binding?.objectiveMainModel = getItem(position) as ObjectiveModel
 
 
+
+        //if not found in map add...
         this.mapObjectiveView[position] = binding
         return binding.root
     }
@@ -81,7 +60,7 @@ class ObjectiveListAdapter(private val context: Context,
         if(this.mapObjectiveView == null || this.mapObjectiveView.isEmpty()) return
 
         var sortedList : Map<Int, ObjectiveMainObjectLayoutBinding> = this.mapObjectiveView.filter { (k,v) -> k !=currentPosition
-                && v.moreDetailsLayout.visibility==View.VISIBLE
+                //&& v.moreDetailsLayout.visibility==View.VISIBLE
         }
         sortedList.forEach { (k, v) ->
             System.out.println("HERE UPDATE DETAILS")
@@ -113,113 +92,7 @@ class ObjectiveListAdapter(private val context: Context,
         super.notifyDataSetChanged()
     }
 
-    fun verifyWeekDayCheckBoxAndValidate(binding: ObjectiveMainObjectLayoutBinding, v: View, isChecked : Boolean ){
-        //GetModel
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.context.resources.getResourceEntryName(v.id)
 
-        if(objectiveModel != null) {
-            try {
-                v as CheckBox
-                when {
-                    viewName.equals("monday") -> {
-                        objectiveModel.isMonday = v.isChecked
-                    }
-                    viewName.equals("tuesday") -> {
-                        objectiveModel.isTuesday = v.isChecked
-                    }
-                    viewName.equals("wednesday") -> {
-                        objectiveModel.isWednesday = v.isChecked
-                    }
-                    viewName.equals("thursday") -> {
-                        objectiveModel.isThursday = v.isChecked
-                    }
-                    viewName.equals("friday") -> {
-                        objectiveModel.isFriday = v.isChecked
-                    }
-                }
-                binding.weekday.isChecked = objectiveModel.isWeekDaySet()
-
-                objectiveModel.getNextDateList(true)
-
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
-
-    fun verifyWeekEndCheckBoxAndValidate(binding: ObjectiveMainObjectLayoutBinding, v: View, isChecked : Boolean ){
-        //GetModel
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.context.resources.getResourceEntryName(v.id)
-
-        if(objectiveModel != null) {
-            try {
-                v as CheckBox
-                when {
-                    viewName.equals("saturday") -> {
-                        objectiveModel.isSaturday = v.isChecked
-                    }
-                    viewName.equals("sunday") -> {
-                        objectiveModel.isSunday = v.isChecked
-                    }
-                }
-                binding.weekend.isChecked = objectiveModel.isWeekEndSet()
-
-                objectiveModel.getNextDateList(true)
-
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
-
-    fun verifySwitchAndValidate(binding: ObjectiveMainObjectLayoutBinding, v: View){
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.context.resources.getResourceEntryName(v.id)
-
-        if(objectiveModel != null) {
-            try {
-                v as Switch
-                when {
-                    viewName.equals("weekday") -> {
-                        var isChecked = v.isChecked
-
-                        objectiveModel.isMonday = isChecked
-                        binding.monday.isChecked = isChecked
-
-                        objectiveModel.isTuesday = isChecked
-                        binding.tuesday.isChecked = isChecked
-
-                        objectiveModel.isWednesday = isChecked
-                        binding.wednesday.isChecked = isChecked
-
-                        objectiveModel.isThursday = isChecked
-                        binding.thursday.isChecked = isChecked
-
-                        objectiveModel.isFriday = isChecked
-                        binding.friday.isChecked = isChecked
-                    }
-                    viewName.equals("weekend") -> {
-                        var isChecked = v.isChecked
-
-                        objectiveModel.isSaturday = isChecked
-                        binding.saturday.isChecked = isChecked
-
-                        objectiveModel.isSunday = isChecked
-                        binding.sunday.isChecked = isChecked
-                    }
-                }
-                binding.weekday.isChecked = objectiveModel.isWeekDaySet()
-                binding.weekend.isChecked = objectiveModel.isWeekEndSet()
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
 
 
 }

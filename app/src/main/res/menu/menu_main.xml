@@ -9,8 +9,7 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_new"
-        android:orderInCategory="100"
-        android:title="New Objective"
-        app:showAsAction="never" />
+        android:id="@+id/demo"
+        android:orderInCategory="120"
+        android:title="Demo"/>
 </menu>

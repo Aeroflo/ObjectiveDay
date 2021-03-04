@@ -6,4 +6,6 @@ class UserModel {
 
     lateinit var pwd : String
 
+    lateinit var  email : String
+
 }

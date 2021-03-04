@@ -12,6 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/objectivecolapseborder"
         >
 
 
@@ -36,13 +37,14 @@
                     android:orientation="vertical"
                     android:weightSum="2">
 
-                    <TextView
+                    <EditText
                         android:id="@+id/description_txt"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="@={objectiveMainModel.description}"
                         android:textSize="18sp"
+                        android:enabled="false"
                         tools:text=" default doubled line is " />
 
                 </LinearLayout>
@@ -85,22 +87,35 @@
                 android:id="@+id/more_details_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/objectivecolapseborder"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
 
-                <TextView
-                    android:id="@+id/detailsCollapse"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Details" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/detailsCollapse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:text="Details" />
+
+                    <Switch
+                        android:id="@+id/notifySW"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.1"
+                        android:text="Notify" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:weightSum="3">
+                    android:weightSum="2">
 
                     <LinearLayout
                         android:id="@+id/day_layout"
@@ -198,9 +213,9 @@
 
                         <LinearLayout
                             android:id="@+id/time_layout"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1.5"
+                            android:layout_weight="0.5"
                             android:orientation="horizontal">
 
                             <TextView
@@ -220,10 +235,33 @@
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/next_layout"
+                            android:id="@+id/deadlineLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.5"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/textView5"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="Deadline: "
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/textView6"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="TextView" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/next_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:orientation="vertical"
                             android:weightSum="4">
 
@@ -232,7 +270,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
-                                android:text="Next Objectives" />
+                                android:text="Next Objectives"
+                                android:textStyle="bold"/>
 
                             <TextView
                                 android:id="@+id/date1"
@@ -260,26 +299,21 @@
                         </LinearLayout>
 
                     </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <Switch
-                            android:id="@+id/notifySwitch"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="Notify" />
-                    </LinearLayout>
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/save"
+                <include
+                    android:id="@+id/qrCode"
+                    layout="@layout/qr_code_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+
+                <include
+                    android:id="@+id/saveProgress"
+                    layout="@layout/buttonprogressbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Save" />
+                    />
 
 
             </LinearLayout>

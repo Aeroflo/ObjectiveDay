@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/daysCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/daysLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Switch
+                android:id="@+id/weekdaysSW"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All week days" />
+
+            <CheckBox
+                android:id="@+id/mondayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Monday" />
+
+            <CheckBox
+                android:id="@+id/TuesdayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tuesday" />
+
+            <CheckBox
+                android:id="@+id/wednesdayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Wednesday" />
+
+            <CheckBox
+                android:id="@+id/thurdayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thurday" />
+
+            <CheckBox
+                android:id="@+id/fridayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Friday" />
+
+            <Switch
+                android:id="@+id/weekendSW"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All week ends" />
+
+            <CheckBox
+                android:id="@+id/saturdayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Saturday" />
+
+            <CheckBox
+                android:id="@+id/sundayCB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sunday" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
