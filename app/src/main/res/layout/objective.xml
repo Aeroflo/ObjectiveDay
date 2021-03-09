@@ -1,264 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
+<layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
     <data>
         <variable
-            name="objectiveMainModel"
+            name="objectiveMain"
             type="com.example.objectiveday.models.ObjectiveModel" />
-        <variable
-            name="objectiveHandlers"
-            type="com.example.objectiveday.controllers.ObjectiveHandlers"/>
     </data>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/done_object_constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--<TextView
-            android:id="@+id/weekDay_txt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:text="Day and Time"
-            android:textSize="18sp" />-->
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="id" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <EditText
-                android:id="@+id/objective_text"
+                android:id="@+id/todo_txt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:editable="false"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:maxLength="60"
-                android:text="@={objectiveMainModel.description}" />
+                android:text="@={objectiveMain.description}" />
 
-            <View
-                android:id="@+id/separatorDescription"
-                android:layout_width="fill_parent"
-                android:layout_height="2dp"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/objective_text"
-                android:layout_marginTop="10dp"
-                app:achivementSeparator="@{objectiveMainModel.calculatePercentageDone()}" />
-
-
-            <LinearLayout
-                android:id="@+id/achivements_layout"
+            <include
+                android:id="@+id/markasdone"
+                layout="@layout/buttontodoprogressbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <TextView
-                    android:id="@+id/nbTriggered"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.9"
-                    app:nbTriggered="@{objectiveMainModel.nbTriggered}"/>
-
-                <TextView
-                    android:id="@+id/nbDone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.9"
-                    app:nbDone="@{objectiveMainModel.nbDone}"/>
-
-                <TextView
-                    android:id="@+id/percentage"
-                    android:layout_width="20px"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".2"
-                    app:percentage="@{objectiveMainModel.calculatePercentageDone()}" />
-            </LinearLayout>
-
-            <View
-                android:id="@+id/sepratorAchievements"
-                android:layout_width="fill_parent"
-                android:layout_height="2dp"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/achivements_layout"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="10dp"
-                app:achivementSeparator="@{objectiveMainModel.calculatePercentageDone()}" />
-
-
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Days and Time configurations" />
-
-            <LinearLayout
-                android:id="@+id/weekDays_layout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <LinearLayout
-                    android:id="@+id/week_shortcut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-
-                    android:orientation="vertical"
-                    android:weightSum="2">
-
-                    <Switch
-                        android:id="@+id/week_days_sw"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layoutDirection="rtl"
-                        android:text="Week Days"
-                        app:weekPartSwitch="@{objectiveMainModel.isWeekDaySet()}"/>
-
-                    <Switch
-                        android:id="@+id/week_end_sw"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layoutDirection="rtl"
-                        android:text="Week Ends"
-                        app:weekPartSwitch="@{objectiveMainModel.isWeekEnd}"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/days_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <CheckBox
-                        android:id="@+id/monday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Monday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isMonday}"/>
-
-                    <CheckBox
-                        android:id="@+id/tuesday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Tuesday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isTuesday}"/>
-
-                    <CheckBox
-                        android:id="@+id/wednesday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Wednesday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isWednesday}"/>
-
-                    <CheckBox
-                        android:id="@+id/thursday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Thursday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isThursday}"/>
-
-                    <CheckBox
-                        android:id="@+id/friday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Friday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isFriday}"/>
-
-                    <CheckBox
-                        android:id="@+id/saturday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Saturday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isSaturday}"/>
-
-                    <CheckBox
-                        android:id="@+id/sunday_chk"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sunday"
-                        android:onClick="@{view-> objectiveHandlers.handlerCheckBox(view,objectiveMainModel)}"
-                        app:dayCheckBox="@{objectiveMainModel.isSunday}"/>
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/datetimePickerLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/timeText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Time" />
-
-                <EditText
-                    android:id="@+id/time_field"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:ems="10"
-                    android:enabled="false"
-                    android:inputType="time"
-                    app:time="@{objectiveMainModel.time}" />
-
-                <Button
-                    android:id="@+id/pickTime_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:text="Set Time" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/button_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <Button
-                    android:id="@+id/save_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Save" />
-
-                <Button
-                    android:id="@+id/done_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Done" />
-            </LinearLayout>
-
+                android:layout_height="match_parent" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

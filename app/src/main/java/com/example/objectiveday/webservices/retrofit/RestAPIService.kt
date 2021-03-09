@@ -6,6 +6,8 @@ import com.example.objectiveday.webservices.apimodels.APIUser
 import com.example.objectiveday.webservices.apimodels.APIUserDeviceModel
 import retrofit2.Call
 import retrofit2.Response
+import java.lang.Exception
+import java.net.HttpCookie
 
 
 class RestAPIService {
@@ -15,9 +17,14 @@ class RestAPIService {
         this.ip = ip
     }
 
+    @Throws(Exception::class)
     fun getToken(userModel :APIUserDeviceModel) : APIToken? {
         val retrofit = ServiceBuilder(ip).buildService(RestAPI::class.java)
-        return retrofit.getToken(userModel).execute().body()
+        try {
+            return retrofit.getToken(userModel).execute().body()
+        }catch(e:Exception){
+            return null
+        }
     }
 
     fun fullRegister(userModel: APIUserDeviceModel, onResult: (APIUser?) -> Unit){
@@ -43,14 +50,17 @@ class RestAPIService {
         )
     }
 
-    fun getObjectives(apiToken: APIToken) : List<APIObjectives>{
+    fun getObjectives(apiToken: APIToken, todo : Boolean?) : List<APIObjectives>{
         System.err.println("GET OBJECTIVE CALL")
         val retrofit = ServiceBuilder(ip).buildService(RestAPI::class.java)
         var deviceName : String = if(apiToken.device == null) "" else apiToken.device
         var token : String = if(apiToken.token == null) "" else apiToken.token
 
-
-        return retrofit.getObjectives(deviceName, token).execute().body()
+        return try {
+            retrofit.getObjectives(deviceName, token, todo).execute().body()
+        }catch(e:Exception){
+            mutableListOf<APIObjectives>()
+        }
     }
 
     fun saveObjective(apiToken : APIToken, apiObjectives: APIObjectives) : APIObjectives?{
@@ -68,6 +78,22 @@ class RestAPIService {
 
 
         return retrofit.getObjectiveById(deviceName, token, id).execute().body()
+    }
+
+    fun markObjectiveAsDone(apiToken: APIToken, id : Long?) : Boolean{
+        if(id == null) return false
+        val retrofit = ServiceBuilder(ip).buildService(RestAPI::class.java)
+        var deviceName : String = if(apiToken.device == null) "" else apiToken.device
+        var token : String = if(apiToken.token == null) "" else apiToken.token
+
+        try {
+            val code: Int = retrofit.markObjectiveAsDone(deviceName, token, id).execute().code()
+            if (code != 200) return false;
+            return true;
+        }catch(e:Exception){
+            System.out.println(e.message)
+            return false
+        }
     }
 
 

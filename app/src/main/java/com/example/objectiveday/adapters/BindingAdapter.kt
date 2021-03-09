@@ -63,6 +63,12 @@ object BindingAdapter {
         view.isChecked = bool
     }
 
+    @BindingAdapter("notifySwitch")
+    @JvmStatic
+    fun bindNotifySwitch(view : Switch, bool : Boolean){
+        view.isChecked = bool
+    }
+
     @BindingAdapter("weekPartSwitch")
     @JvmStatic
     fun bindWeekPartBoolean(view : Switch, bool : Boolean){

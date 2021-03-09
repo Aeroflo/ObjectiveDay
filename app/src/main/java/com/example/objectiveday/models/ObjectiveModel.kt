@@ -2,17 +2,12 @@ package com.example.objectiveday.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.databinding.Bindable
-import androidx.databinding.InverseMethod
 import com.example.objectiveday.Utils
 import java.io.Serializable
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
-import java.util.*
 import kotlin.Comparator
 import kotlin.collections.ArrayList
 
@@ -28,7 +23,8 @@ class ObjectiveModel  private constructor (
     var isNotifiable : Boolean = false,
     var nbTriggered : Int = 0,
     var nbDone : Int = 0,
-    var children : Array<ObjectiveModel>? = null
+    var children : Array<ObjectiveModel>? = null,
+    var lastDoneTime : LocalDateTime? = null
 ) : Serializable {
 
     data class Builder(
@@ -41,7 +37,8 @@ class ObjectiveModel  private constructor (
         var nbTriggered : Int = 0,
         var nbDone : Int = 0,
         var isNotifiable : Boolean = false,
-        var children : Array<ObjectiveModel>? = null
+        var children : Array<ObjectiveModel>? = null,
+        var lastDoneTime: LocalDateTime? = null
     ){
 
         fun withId(id : Long?) = apply { this.id = id }
@@ -54,8 +51,9 @@ class ObjectiveModel  private constructor (
         fun withNbTriggered(nbTriggered: Int) = apply { this.nbTriggered = nbTriggered }
         fun withNbDone(nbDone: Int) = apply { this.nbDone = nbDone }
         fun withChildren(children: Array<ObjectiveModel>) = apply { this.children = children }
+        fun withLastDoneTime(lastDoneTime: LocalDateTime?) = apply { this.lastDoneTime = lastDoneTime }
 
-        fun build() = ObjectiveModel(id, parentId, description, dayChecker, time, isActive,  isNotifiable, nbTriggered, nbDone, children)
+        fun build() = ObjectiveModel(id, parentId, description, dayChecker, time, isActive,  isNotifiable, nbTriggered, nbDone, children, lastDoneTime)
     }
 
     fun integerToBinary(value: Int, index : Int) : Boolean{
@@ -96,7 +94,8 @@ class ObjectiveModel  private constructor (
         parcel.readByte() != 0.toByte(),
         parcel.readInt(),
         parcel.readInt(),
-        parcel.createTypedArray(CREATOR)
+        parcel.createTypedArray(CREATOR),
+        TODO("last done time")
     )
 
 
@@ -210,5 +209,34 @@ class ObjectiveModel  private constructor (
         System.out.println(nextDates.toString())
         this.nextDates = nextDates
         return this.nextDates
+    }
+
+    fun getObjectiveStatus(): ObjectiveStatus{
+        if(!isObjectiveTodoToday()) return ObjectiveStatus.NEUTRAL
+        if(isObjectiveTodoToday() && isObjectiveDoneToday()) return ObjectiveStatus.DONE
+        else return ObjectiveStatus.TODO
+    }
+
+    fun isObjectiveDoneToday() : Boolean{
+        if(this.lastDoneTime == null) return false
+        var now : LocalDateTime = LocalDateTime.now()
+        var beginDay = now.withHour(0).withMinute(0)
+        var endDay = beginDay.plusDays(1)
+        return this.lastDoneTime!!.isAfter(beginDay) && this.lastDoneTime!!.isBefore(endDay)
+    }
+
+    fun isObjectiveTodoToday() : Boolean{
+        var now : LocalDateTime = LocalDateTime.now()
+        var dayOfWeek : DayOfWeek = now.dayOfWeek
+        when(dayOfWeek){
+            DayOfWeek.MONDAY -> return isMonday
+            DayOfWeek.TUESDAY -> return isTuesday
+            DayOfWeek.WEDNESDAY -> return isWednesday
+            DayOfWeek.THURSDAY -> return isTuesday
+            DayOfWeek.FRIDAY -> return isFriday
+            DayOfWeek.SATURDAY -> return isSaturday
+            DayOfWeek.SUNDAY -> return isSunday
+        }
+        return false
     }
 }

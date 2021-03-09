@@ -15,4 +15,10 @@
         android:title="Scan Objective QR"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/todo"
+        android:orderInCategory="100"
+        android:title="Show TODOs"
+        app:showAsAction="never"/>
+
 </menu>

@@ -111,11 +111,12 @@
                 android:inputType="textPassword"
                 android:text="@={userModel.pwd}" />
 
-            <Button
-                android:id="@+id/signin"
+            <include
+                android:id="@+id/signInBTN"
+                layout="@layout/signinbutton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sign In" />
+                />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/loginsettings"

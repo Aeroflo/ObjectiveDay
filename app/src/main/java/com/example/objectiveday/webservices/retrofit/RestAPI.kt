@@ -19,11 +19,14 @@ interface RestAPI {
 
 
     @GET("/objectives")
-    fun getObjectives(@Header("device") device : String, @Header("token") token : String) : Call<List<APIObjectives>>
+    fun getObjectives(@Header("device") device : String, @Header("token") token : String, @Query("todo") notify : Boolean?) : Call<List<APIObjectives>>
 
     @POST("/objectives")
     fun saveObjective(@Body apiObjectives: APIObjectives, @Header("device") device : String, @Header("token")  token: String): Call<APIObjectives>
 
     @GET("/objective")
     fun getObjectiveById(@Header("device") device : String, @Header("token") token : String, @Query("id") id : Long) : Call<APIObjectives>
+
+    @PUT("/objective")
+    fun markObjectiveAsDone(@Header("device") device : String, @Header("token") token : String, @Query("id") id : Long) : Call<APIObjectives>
 }

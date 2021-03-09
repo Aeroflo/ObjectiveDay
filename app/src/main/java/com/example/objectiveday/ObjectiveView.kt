@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import com.example.objectiveday.NotificationThread.NotificationHandler
 import com.example.objectiveday.adapters.ObjectiveListAdapter
 import com.example.objectiveday.controllers.ObjectiveWeekController
 import com.example.objectiveday.controllers.TokenSingleton
@@ -87,6 +88,10 @@ class ObjectiveView : AppCompatActivity() {
                 System.out.println("GET OVBJECTIVE FROM API")
                 updateObjectiveUIFromAPI()
         }
+
+        if(NotificationHandler.notificationHandler == null) {
+            NotificationHandler.setUpHandler(this.applicationContext)
+        }
         hideKeyboard()
     }
 
@@ -94,7 +99,7 @@ class ObjectiveView : AppCompatActivity() {
             Thread {
                 val apiService = RestAPIService(TokenSingleton.instance.url)
                 objectiveList = arrayListOf<ObjectiveModel>()
-                var objectiveModels: List<APIObjectives> = apiService.getObjectives(TokenSingleton.instance.getToken()!!)
+                var objectiveModels: List<APIObjectives> = apiService.getObjectives(TokenSingleton.instance.getToken()!!, null)
                 objectiveModels.forEach { o ->
                     (objectiveList as ArrayList<ObjectiveModel>).add(o.toModel())
                 }
@@ -107,35 +112,6 @@ class ObjectiveView : AppCompatActivity() {
     fun updateListUI(objectivesModels : List<ObjectiveModel>){
         this.listAdapter?.updateDataSource(objectivesModels);
         //this.listAdapter?.notifyDataSetChanged()
-    }
-
-    fun isObjectiveToUpdate(objectiveBinding: ObjectiveBinding, objectiveModel : ObjectiveModel, objectiveWeekModel : ObjectiveWeekController) : Boolean{
-        //hide keyboard
-        hideKeyboard()
-
-        var somethingToUpdate : Boolean = false
-        //Check description. not empty and updated
-        if(objectiveBinding.objectiveText.text.toString() == null || objectiveBinding.objectiveText.text.isEmpty()){
-            popToast("Not saved: please set an objective description")
-            return false
-        }
-        else if(objectiveBinding.objectiveText.text.toString().equals(objectiveModel.description)){
-            somethingToUpdate = true
-        }
-        //Check time. not empty and good format hh:dd
-        if(objectiveBinding.timeField.text != null && !objectiveBinding.timeField.text.isEmpty()){
-            var localTime = Utils.stringToTime(time_field.text.toString());
-            if(localTime == null) {
-                popToast("Not Saved: please set a time")
-                return false
-            }
-        }
-
-        if(objectiveWeekModel.getAllDaysInteger() == 0){
-            popToast("Not Saved: please set days")
-            return false
-        }
-        return somethingToUpdate
     }
 
     fun popToast(msg : String){
@@ -173,6 +149,28 @@ class ObjectiveView : AppCompatActivity() {
                 myIntent.putExtra("url", url)
                 this.startActivity(myIntent)
                 return true
+            }
+            R.id.todo -> {
+                //Load objective to be done and place in intent --> List APIObjectives OR ObjectiveModel
+                Thread{
+                    val apiService = RestAPIService(TokenSingleton.instance.url)
+                    var objectivesNotify: List<APIObjectives> =
+                        apiService.getObjectives(TokenSingleton.instance.getToken()!!, true)
+
+                    val todoObjectives = mutableListOf<ObjectiveModel>();
+                    if (objectivesNotify != null && !objectivesNotify.isEmpty()) {
+                       objectivesNotify.forEach{o -> todoObjectives.add(o.toModel())}
+                    }else{
+
+                    }
+
+                    runOnUiThread{
+                        var intent : Intent = Intent(this, TodoActivity::class.java)
+                        intent.putExtra("todo", todoObjectives.toTypedArray())
+                        this.startActivity(intent)
+                    }
+                }.start()
+                return true;
             }
             else -> return super.onOptionsItemSelected(item)
         }

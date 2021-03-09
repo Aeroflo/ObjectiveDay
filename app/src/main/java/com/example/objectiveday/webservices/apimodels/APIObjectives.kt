@@ -1,5 +1,6 @@
 package com.example.objectiveday.webservices.apimodels
 
+import com.example.objectiveday.Utils
 import com.example.objectiveday.models.ObjectiveModel
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDateTime
@@ -21,12 +22,13 @@ data class APIObjectives (
     @SerializedName("last_time_modified") val lastModifiedDate : String? = null,
     @SerializedName("next_objective_date") val nextObjectiveDays : List<String>? = null,
     @SerializedName("is_active") val isActive : Boolean? = null,
-    @SerializedName("children_objectives") val childrenObjective : List<APIObjectives>? = null
+    @SerializedName("children_objectives") val childrenObjective : List<APIObjectives>? = null,
+    @SerializedName("last_done_date") val lastDoneDate : String? = null
 ){
     fun toModel() : ObjectiveModel{
         var childrenObjective = ArrayList<ObjectiveModel>()
         if(this.childrenObjective!= null) this.childrenObjective.forEach{child -> childrenObjective.add(child.toModel())}
-        return ObjectiveModel.Builder()
+        var objectiveModelBuilder =  ObjectiveModel.Builder()
             .withId(id)
             .withParentId(parent_id)
             .withDayChecker(parseDays())
@@ -34,7 +36,11 @@ data class APIObjectives (
             //.withIsActive()
             .withIsNotifiable(if(notify !=null) notify else false)
             .withChildren(childrenObjective.toTypedArray())
-            .build()
+        if(lastDoneDate != null){
+            objectiveModelBuilder.withLastDoneTime(Utils.stringToDateTime(lastDoneDate))
+        }
+        return objectiveModelBuilder.build()
+
     }
 
     fun parseDays() : Int{

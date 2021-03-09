@@ -2,9 +2,14 @@ package com.example.objectiveday.controllers
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Message
 import android.text.Layout
+import android.view.Display
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Button
@@ -12,11 +17,16 @@ import android.widget.CheckBox
 import android.widget.Switch
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.*
+import androidx.core.graphics.drawable.DrawableCompat
 import com.example.objectiveday.R
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
 import com.example.objectiveday.models.ObjectiveModel
+import com.example.objectiveday.models.ObjectiveStatus
 import com.example.objectiveday.webservices.apimodels.APIObjectives
 import com.example.objectiveday.webservices.retrofit.RestAPIService
+import kotlinx.android.synthetic.main.objective_main_object_layout.view.*
 import kotlinx.android.synthetic.main.qr_code_layout.view.*
 
 class ObjectiveBindingController {
@@ -30,6 +40,8 @@ class ObjectiveBindingController {
     {
         if(binding == null) return binding
         binding.objectiveMainModel = objectiveModel
+
+        verifyObjectiveStatusAndValidate(binding)
 
         binding.details.setOnClickListener {
             val view = binding.moreDetailsLayout
@@ -60,7 +72,7 @@ class ObjectiveBindingController {
         binding.weekday.setOnClickListener(){view -> verifySwitchAndValidate(binding, view)}
         binding.weekend.setOnClickListener{view -> verifySwitchAndValidate(binding, view) }
 
-
+        //binding.notifySW.setOnCheckedChangeListener{buttonView, isChecked -> updateNotify(binding, buttonView, isChecked) }
 
         binding.saveProgress.setOnClickListener{
             var buttonSave: ButtonProgressBar = ButtonProgressBar(this.context, it)
@@ -69,7 +81,7 @@ class ObjectiveBindingController {
             //binding.saveProgress.invalidate()
 
             //check values
-            var apiObjectives : APIObjectives? = isObjectiveChecked(binding.objectiveMainModel)
+            var apiObjectives : APIObjectives? = isObjectiveChecked(binding.objectiveMainModel, binding.notifySW.isChecked)
 
             if(apiObjectives == null){
                 Toast.makeText(this.context, "Not saved", Toast.LENGTH_LONG).show()
@@ -82,7 +94,7 @@ class ObjectiveBindingController {
                     apiObjectives = apiService.saveObjective(TokenSingleton.instance.getToken()!!, apiObjectives!!)
                     if(apiObjectives == null)
                     {
-                        buttonSave.buttonFinished(false)
+                        buttonSave.buttonFinished(false) //Todo set this line in handler???
                     }
                     else{
                         mHandler.post({
@@ -148,7 +160,7 @@ class ObjectiveBindingController {
                     }
                 }
                 binding.weekday.isChecked = objectiveModel.isWeekDaySet()
-
+                verifyObjectiveStatusAndValidate(binding)
                 objectiveModel.getNextDateList(true)
 
                 binding.invalidateAll()
@@ -156,6 +168,31 @@ class ObjectiveBindingController {
                 System.out.println("Error " + e)
             }
         }
+    }
+
+    fun verifyObjectiveStatusAndValidate(binding: ObjectiveMainObjectLayoutBinding){
+        //set text background color
+        var objectiveModel = binding.objectiveMainModel
+        var drawableObject : Drawable? = null
+        when(objectiveModel!!.getObjectiveStatus()){
+            ObjectiveStatus.NEUTRAL ->{
+                 drawableObject= context.getDrawable(R.drawable.objectivecolapseborder)
+            }
+            ObjectiveStatus.TODO -> {
+                drawableObject = context.getDrawable(R.drawable.objectivecolapsebordertodo)
+            }
+            ObjectiveStatus.DONE -> {
+                drawableObject = context.getDrawable(R.drawable.objectivecolapseborderdone)
+            }
+        }
+        binding.objectiveAllContraintLayout.background = drawableObject
+    }
+
+    fun updateNotify(binding: ObjectiveMainObjectLayoutBinding, view: View, isChecked: Boolean){
+        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
+        objectiveModel!!.isNotifiable = isChecked
+         binding.notifySW.isChecked = isChecked
+        binding.invalidateAll()
     }
 
     fun verifyWeekEndCheckBoxAndValidate(binding: ObjectiveMainObjectLayoutBinding, v: View, isChecked : Boolean ){
@@ -177,7 +214,7 @@ class ObjectiveBindingController {
                 binding.weekend.isChecked = objectiveModel.isWeekEndSet()
 
                 objectiveModel.getNextDateList(true)
-
+                verifyObjectiveStatusAndValidate(binding)
                 binding.invalidateAll()
             } catch (e: Exception) {
                 System.out.println("Error " + e)
@@ -223,6 +260,7 @@ class ObjectiveBindingController {
                 }
                 binding.weekday.isChecked = objectiveModel.isWeekDaySet()
                 binding.weekend.isChecked = objectiveModel.isWeekEndSet()
+                verifyObjectiveStatusAndValidate(binding)
                 binding.invalidateAll()
             } catch (e: Exception) {
                 System.out.println("Error " + e)
@@ -230,7 +268,7 @@ class ObjectiveBindingController {
         }
     }
 
-    fun isObjectiveChecked(objectiveModel: ObjectiveModel?) : APIObjectives?{
+    fun isObjectiveChecked(objectiveModel: ObjectiveModel?, notify : Boolean) : APIObjectives?{
         if(objectiveModel == null) return null
         if(objectiveModel.description == null || objectiveModel.description.isBlank()) return null
         var time = ""
@@ -238,7 +276,7 @@ class ObjectiveBindingController {
 
         var apiObjective : APIObjectives = APIObjectives(objectiveModel.id, objectiveModel.parentId, objectiveModel.description,
                             objectiveModel.isMonday, objectiveModel.isTuesday, objectiveModel.isWednesday, objectiveModel.isThursday, objectiveModel.isFriday, objectiveModel.isSaturday, objectiveModel.isSunday,
-                            time, objectiveModel.isNotifiable, "", "", null, true, null)
+                            time, notify, "", "", null, true, null)
         return apiObjective
     }
 }

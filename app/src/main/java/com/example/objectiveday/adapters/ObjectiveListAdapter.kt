@@ -8,17 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
-import androidx.core.view.forEach
-import androidx.core.view.isGone
-import androidx.databinding.DataBindingComponent
-import androidx.databinding.DataBindingUtil
 import com.example.objectiveday.R
 import com.example.objectiveday.controllers.ObjectiveBindingController
-import com.example.objectiveday.databinding.ObjectiveBinding
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
 import com.example.objectiveday.models.ObjectiveModel
-import kotlinx.android.synthetic.main.objective.view.*
-import java.util.*
 import kotlin.collections.HashMap
 
 class ObjectiveListAdapter(private val context: Context,

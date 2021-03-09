@@ -17,7 +17,9 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import com.example.objectiveday.NotificationThread.NotificationHandler
 import com.example.objectiveday.adapters.ObjectiveListAdapter
+import com.example.objectiveday.controllers.ButtonSignIn
 import com.example.objectiveday.controllers.ObjectiveHandlers
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.database.ObjectiveDBHelper
@@ -26,6 +28,7 @@ import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIToken
 import com.example.objectiveday.webservices.apimodels.APIUserDeviceModel
 import com.example.objectiveday.webservices.retrofit.RestAPIService
+import com.google.android.gms.common.SignInButton
 import com.google.android.material.chip.Chip
 
 
@@ -56,7 +59,11 @@ class MainActivity : AppCompatActivity() {
         //VIEWS
         val issues : TextView = findViewById(R.id.issues);
         val emailText = findViewById(R.id.edtUserEmail) as EditText
-        val signInBtn : Button = findViewById(R.id.signin)
+
+        val buttonSignIn : View = findViewById(R.id.signInBTN)
+        val signInButton : ButtonSignIn = ButtonSignIn(this.applicationContext, buttonSignIn)
+
+        //val signInBtn : Button = findViewById(R.id.signin)
         val newUserChip : Chip = findViewById(R.id.newuser)
 
 
@@ -64,14 +71,14 @@ class MainActivity : AppCompatActivity() {
             if(newUserChip.isChecked){
                 newUserChip.isCheckedIconVisible = true
                 emailText.visibility = View.VISIBLE
-                signInBtn.text = "REGISTER: user / device"
-                signInBtn.invalidate()
+                signInButton.setModeNewUserDevice()
+                //signInButton.()
                 emailText.invalidate()
             }else{
                 emailText.visibility = View.GONE
                 emailText.invalidate()
-                signInBtn.text = "SIGN IN"
-                signInBtn.invalidate()
+                signInButton.setModeSignIn()
+                //signInBtn.invalidate()
             }
         }
 
@@ -81,19 +88,22 @@ class MainActivity : AppCompatActivity() {
                 registerDevice.isCheckedIconVisible = true
                 emailText.visibility = View.VISIBLE
                 emailText.invalidate()
-                signInBtn.text = "REGISTER: device"
-                signInBtn.invalidate()
+                signInButton.setModeRegisterDevice()
+                //signInBtn.invalidate()
             }else{
                 emailText.visibility = View.GONE
                 emailText.invalidate()
-                signInBtn.text = "SIGN IN"
-                signInBtn.invalidate()
+                signInButton.setModeSignIn()
+                //signInBtn.invalidate()
             }
         }
 
 
 
-        signInBtn.setOnClickListener{
+        buttonSignIn.setOnClickListener{
+
+            signInButton.buttonActivated()
+            setAllNotClickable(buttonSignIn, registerDevice, newUserChip, false)
             var username : String = ""
             var password : String = ""
             var email : String = ""
@@ -151,6 +161,8 @@ class MainActivity : AppCompatActivity() {
                                 issues.setText("Cannot create account / device!")
                                 issues.visibility = View.VISIBLE
                                 issues.invalidate()
+                                signInButton.buttonFinished(false)
+                                setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
                             }
                         }
                         else{
@@ -160,13 +172,15 @@ class MainActivity : AppCompatActivity() {
                             newUserChip.isChecked = false
                             emailText.visibility = View.GONE
                             emailText.invalidate()
-                            signInBtn.text = "SIGN IN"
-                            signInBtn.invalidate()
+                            signInButton.buttonFinished(true)
+                            signInButton.setModeSignIn()
+                            setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
                         }
                     }
                 }else if(registerDevice.isChecked){
                     val userDeviceModel: APIUserDeviceModel=
                         APIUserDeviceModel(username, androidSerialNumber, password, null)
+                    //TODO : call retrofit to register device
                 }else {
 
                     try{
@@ -181,6 +195,8 @@ class MainActivity : AppCompatActivity() {
                                     issues.setText("Invalid user name and password!")
                                     issues.visibility = View.VISIBLE
                                     issues.invalidate()
+                                    signInButton.buttonFinished(false)
+                                    setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
                                 }
                                 vibratePhoneWrong()
                             } else {
@@ -190,6 +206,8 @@ class MainActivity : AppCompatActivity() {
                                         "Authenticated ",
                                         Toast.LENGTH_LONG
                                     ).show()
+                                    signInButton.buttonFinished(true)
+                                    setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
                                 }
                                 val myIntent = Intent(this, ObjectiveView::class.java)
                                 this.startActivity(myIntent)
@@ -200,15 +218,33 @@ class MainActivity : AppCompatActivity() {
                         issues.setText("Internal error :"+e.message)
                         issues.visibility = View.VISIBLE
                         issues.invalidate()
+                        signInButton.buttonFinished(false)
+                        setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
                     }
                 }
             }
             else{
                 vibratePhoneWrong()
+                signInButton.buttonFinished(false)
+                setAllNotClickable(buttonSignIn, registerDevice, newUserChip, true)
             }
 
 
+
         }
+
+        //notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    }
+
+    fun setAllNotClickable(
+        buttonSignIn: View,
+        registerDevice : Chip,
+        newUserChip : Chip,
+        isClickable : Boolean){
+        buttonSignIn.isClickable = isClickable
+        registerDevice.isClickable = isClickable
+        newUserChip.isClickable = isClickable
     }
 
     fun vibratePhoneWrong(){
@@ -224,31 +260,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNotificationChannel(id:String, name:String, description:String){
-        val importance = NotificationManager.IMPORTANCE_LOW
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(id, name, importance)
 
         channel.description =description
         channel.enableLights(true)
         channel.lightColor = Color.RED
         channel.enableVibration(true)
-        channel.vibrationPattern = longArrayOf(100, 200, 400, 500, 400, 300, 200, 400)
+        channel.vibrationPattern = longArrayOf(0, 100)
         notificationManager?.createNotificationChannel(channel)
 
     }
 
-    fun sendNotification(){
-        val notificationID = 101
-        val channelID = "com.example.objectiveday"
 
-        val notification = Notification.Builder(this@MainActivity, channelID)
-            .setContentTitle("Example Notif")
-            .setContentText("This is an example")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setChannelId(channelID)
-            .build()
-
-        notificationManager?.notify(notificationID, notification)
-    }
 
     private fun callObjectiveView(objectiveModel: Any?) {
         if(objectiveModel is ObjectiveModel){
@@ -258,133 +282,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(objectiveIntent)
         }
     }
-
-    private fun callPopUpObjective(objectiveModel: Any?){
-        var binding: ObjectiveBinding =DataBindingUtil.setContentView(this, R.layout.objective)
-        binding.objectiveMainModel = objectiveModel as ObjectiveModel?
-        binding.objectiveHandlers = ObjectiveHandlers(this.applicationContext)
-        val popupWindow = PopupWindow(
-            binding.root, // Custom view to show in popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-            LinearLayout.LayoutParams.WRAP_CONTENT // Window height
-        )
-
-        binding.mondayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.tuesdayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.wednesdayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.thursdayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.fridayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
-
-        binding.saturdayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekEndCheckBoxAndValidate(binding, buttonView, isChecked) }
-        binding.sundayChk.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekEndCheckBoxAndValidate(binding, buttonView, isChecked) }
-
-        binding.weekDaysSw.setOnClickListener{view -> verifySwitchAndValidate(binding, view)}
-        binding.weekEndSw.setOnClickListener{view -> verifySwitchAndValidate(binding, view) }//{buttonView, isChecked -> verifySwitchAndValidate(binding, buttonView, isChecked)}
-    }
-
-    //Best way to do this.
-    fun verifyWeekDayCheckBoxAndValidate(binding: ObjectiveBinding, v: View, isChecked : Boolean ){
-        //GetModel
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.applicationContext.resources.getResourceEntryName(v.id)
-
-        if(objectiveModel != null) {
-            try {
-                v as CheckBox
-                when {
-                    viewName.equals("monday_chk") -> {
-                        objectiveModel.isMonday = v.isChecked
-                    }
-                    viewName.equals("tuesday_chk") -> {
-                        objectiveModel.isTuesday = v.isChecked
-                    }
-                    viewName.equals("wednesday_chk") -> {
-                        objectiveModel.isWednesday = v.isChecked
-                    }
-                    viewName.equals("thursday_chk") -> {
-                        objectiveModel.isThursday = v.isChecked
-                    }
-                    viewName.equals("friday_chk") -> {
-                        objectiveModel.isFriday = v.isChecked
-                    }
-                }
-                binding.weekDaysSw.isChecked = objectiveModel.isWeekDaySet()
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
-
-    fun verifyWeekEndCheckBoxAndValidate(binding: ObjectiveBinding, v: View, isChecked : Boolean ){
-        //GetModel
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.applicationContext.resources.getResourceEntryName(v.id)
-
-        if(objectiveModel != null) {
-            try {
-                v as CheckBox
-                when {
-                    viewName.equals("saturday_chk") -> {
-                        objectiveModel.isSaturday = v.isChecked
-                    }
-                    viewName.equals("sunday_chk") -> {
-                        objectiveModel.isSunday = v.isChecked
-                    }
-                }
-                binding.weekEndSw.isChecked = objectiveModel.isWeekEndSet()
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
-
-    fun verifySwitchAndValidate(binding: ObjectiveBinding, v: View){
-        var objectiveModel :  ObjectiveModel? = binding.objectiveMainModel
-        var viewName: String = this.applicationContext.resources.getResourceEntryName(v.id)
-
-        if(objectiveModel != null) {
-            try {
-                v as Switch
-                when {
-                    viewName.equals("week_days_sw") -> {
-                        var isChecked = v.isChecked
-
-                        objectiveModel.isMonday = isChecked
-                        binding.mondayChk.isChecked = isChecked
-
-                        objectiveModel.isTuesday = isChecked
-                        binding.tuesdayChk.isChecked = isChecked
-
-                        objectiveModel.isWednesday = isChecked
-                        binding.wednesdayChk.isChecked = isChecked
-
-                        objectiveModel.isThursday = isChecked
-                        binding.thursdayChk.isChecked = isChecked
-
-                        objectiveModel.isFriday = isChecked
-                        binding.fridayChk.isChecked = isChecked
-                    }
-                    viewName.equals("week_end_sw") -> {
-                        var isChecked = v.isChecked
-
-                        objectiveModel.isSaturday = isChecked
-                        binding.saturdayChk.isChecked = isChecked
-
-                        objectiveModel.isSunday = isChecked
-                        binding.sundayChk.isChecked = isChecked
-                    }
-                }
-                binding.weekDaysSw.isChecked = objectiveModel.isWeekDaySet()
-                binding.weekEndSw.isChecked = objectiveModel.isWeekEndSet()
-                binding.invalidateAll()
-            } catch (e: Exception) {
-                System.out.println("Error " + e)
-            }
-        }
-    }
-
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

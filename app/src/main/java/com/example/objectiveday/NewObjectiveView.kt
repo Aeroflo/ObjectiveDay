@@ -62,4 +62,6 @@ class NewObjectiveView : AppCompatActivity() {
         val myIntent = Intent(this, ObjectiveView::class.java)
         this.startActivity(myIntent)
     }
+
+
 }
