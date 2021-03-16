@@ -12,6 +12,7 @@ import com.example.objectiveday.NewObjectiveView
 import com.example.objectiveday.ObjectiveView
 import com.example.objectiveday.TodoActivity
 import com.example.objectiveday.controllers.TokenSingleton
+import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
 import com.example.objectiveday.webservices.retrofit.RestAPIService
@@ -71,8 +72,8 @@ class NotificationHandler {
 
                 Thread {
                     val apiService = RestAPIService(TokenSingleton.instance.url)
-                    var objectivesTodo: List<APIObjectives> =
-                        apiService.getObjectives(TokenSingleton.instance.getToken()!!, true)
+                    var objectivesTodo: List<APIObjectives> = DataSingleton.instance.getObjectifTodoToday()
+                        //apiService.getObjectives(TokenSingleton.instance.getToken(), true)
 
                     if (objectivesTodo != null && !objectivesTodo.isEmpty()) {
                         sendNotification(getObjectivesToNotify(objectivesTodo))

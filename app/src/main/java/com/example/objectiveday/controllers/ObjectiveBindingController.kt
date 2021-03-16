@@ -12,16 +12,14 @@ import android.text.Layout
 import android.view.Display
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.Switch
-import android.widget.Toast
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.*
 import androidx.core.graphics.drawable.DrawableCompat
 import com.example.objectiveday.R
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
+import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.models.ObjectiveStatus
 import com.example.objectiveday.webservices.apimodels.APIObjectives
@@ -74,10 +72,17 @@ class ObjectiveBindingController {
 
         //binding.notifySW.setOnCheckedChangeListener{buttonView, isChecked -> updateNotify(binding, buttonView, isChecked) }
 
+
+        var buttonSave: ButtonSignIn = ButtonSignIn(context, binding.saveProgress)
+        buttonSave.setModeSave()
+
         binding.saveProgress.setOnClickListener{
-            var buttonSave: ButtonProgressBar = ButtonProgressBar(this.context, it)
-            buttonSave.buttonActivated()
-            //binding.saveProgress.isClickable = false
+
+            mHandler.post({
+                buttonSave.buttonActivated()
+                binding.invalidateAll()
+            })
+
             //binding.saveProgress.invalidate()
 
             //check values
@@ -89,14 +94,16 @@ class ObjectiveBindingController {
             }
             else{
                 Thread{
-                    val apiService = RestAPIService(TokenSingleton.instance.url)
+                    //val apiService = RestAPIService(TokenSingleton.instance.url)
 
-                    apiObjectives = apiService.saveObjective(TokenSingleton.instance.getToken()!!, apiObjectives!!)
+                    apiObjectives = DataSingleton.instance.saveAPIObjectiveLocal(this.context, apiObjectives!!)
+                    //apiObjectives = apiService.saveObjective(TokenSingleton.instance.getToken()!!, apiObjectives!!)
                     if(apiObjectives == null)
                     {
                         buttonSave.buttonFinished(false) //Todo set this line in handler???
                     }
                     else{
+                        Thread.sleep(2000)
                         mHandler.post({
                             binding.objectiveMainModel = apiObjectives!!.toModel()
                             binding.invalidateAll()
@@ -108,22 +115,33 @@ class ObjectiveBindingController {
             }
         }
 
+        //QR CODE
+        binding.qrCode
         var qrLayout : View = binding.qrCode
-        var buttonQR : Button = qrLayout.findViewById(R.id.genqrBTN)
+        var buttonQR : View = qrLayout.findViewById(R.id.genqrBTN)
+        var buttonQRCode: ButtonSignIn = ButtonSignIn(context, buttonQR)
+        buttonQRCode.setModeGenerateQRCode()
         buttonQR.setOnClickListener{
-            buttonQR.isEnabled = false
-            buttonQR.text = "Generating QR"
+            mHandler.post({
+                buttonQR.isEnabled = false
+                buttonQRCode.buttonActivated()
+            })
+
 
             var qrView : QRView = QRView(this.context, qrLayout)
-            qrView.showProgressBar()
-            mHandler.post({
-                qrView.loadQRCode(binding.objectiveMainModel)
-                qrView.hideProgressBar()
-                buttonQR.isEnabled = true
-                buttonQR.text = "Generated"
-                qrLayout.invalidate()
-                binding.invalidateAll()
-            })
+            //qrView.showProgressBar()
+            Thread {
+                Thread.sleep(2000)
+                mHandler.post({
+                    qrView.loadQRCode(binding.objectiveMainModel)
+                    //qrView.hideProgressBar()
+                    buttonQR.isEnabled = true
+                    //buttonQR.text = "Generated"
+                    buttonQRCode.buttonFinished(success = true)
+                    qrLayout.invalidate()
+                    binding.invalidateAll()
+                })
+            }.start()
         }
         return binding
     }

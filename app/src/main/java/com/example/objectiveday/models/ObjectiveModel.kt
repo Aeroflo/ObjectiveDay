@@ -232,7 +232,7 @@ class ObjectiveModel  private constructor (
             DayOfWeek.MONDAY -> return isMonday
             DayOfWeek.TUESDAY -> return isTuesday
             DayOfWeek.WEDNESDAY -> return isWednesday
-            DayOfWeek.THURSDAY -> return isTuesday
+            DayOfWeek.THURSDAY -> return isThursday
             DayOfWeek.FRIDAY -> return isFriday
             DayOfWeek.SATURDAY -> return isSaturday
             DayOfWeek.SUNDAY -> return isSunday

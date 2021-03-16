@@ -31,12 +31,14 @@ class QRView{
     }
 
     fun loadQRCode(objectiveModel: ObjectiveModel?){
-        if(objectiveModel != null && objectiveModel.id != null){
-            var id : Long = objectiveModel.id!!
-            var parentId : Long? = objectiveModel.parentId
+        if(objectiveModel != null){
             var code : StringBuilder = StringBuilder("ObjectiveDay=");
-            if(parentId != null) code = code.append(parentId)
-            else code = code.append(id)
+            val apiObjectives = APIObjectives(objectiveModel.id, objectiveModel.parentId, objectiveModel.description,
+                objectiveModel.isMonday, objectiveModel.isTuesday, objectiveModel.isWednesday, objectiveModel.isThursday, objectiveModel.isFriday, objectiveModel.isSaturday, objectiveModel.isSunday,
+                objectiveModel.time.toString(), objectiveModel.isNotifiable, null, null, null, objectiveModel.isActive, null, null)
+            code = code.append(apiObjectives.toString())
+            //if(parentId != null) code = code.append(parentId)
+            //else code = code.append(id)
 
             var bitmap: Bitmap = generateQRCode(code.toString())
             qrView?.setImageBitmap(bitmap)

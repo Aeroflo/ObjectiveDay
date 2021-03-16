@@ -18,6 +18,7 @@ import com.example.objectiveday.controllers.ObjectiveWeekController
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.databinding.ObjectiveBinding
 import com.example.objectiveday.databinding.ObjectiveListLayoutBinding
+import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
 import com.example.objectiveday.webservices.apimodels.APIToken
@@ -71,7 +72,8 @@ class ObjectiveView : AppCompatActivity() {
 
 
         if(isDemo != null){
-            for (i in 0..100) {
+            updateObjectiveUIFromAPI() //test
+            /*for (i in 0..100) {
                 var objectiveModel: ObjectiveModel = ObjectiveModel.Builder()
                     .withDescription("This is a new objective test " + i)
                     .withId(0)
@@ -82,7 +84,7 @@ class ObjectiveView : AppCompatActivity() {
 
                 //objectiveModel.getNextDate(0)
                 list.add(objectiveModel)
-            }
+            }*/
             updateListUI(list)
         }else{
                 System.out.println("GET OVBJECTIVE FROM API")
@@ -99,7 +101,7 @@ class ObjectiveView : AppCompatActivity() {
             Thread {
                 val apiService = RestAPIService(TokenSingleton.instance.url)
                 objectiveList = arrayListOf<ObjectiveModel>()
-                var objectiveModels: List<APIObjectives> = apiService.getObjectives(TokenSingleton.instance.getToken()!!, null)
+                var objectiveModels: List<APIObjectives> = DataSingleton.instance.getData()//apiService.getObjectives(TokenSingleton.instance.getToken()!!, null)
                 objectiveModels.forEach { o ->
                     (objectiveList as ArrayList<ObjectiveModel>).add(o.toModel())
                 }
@@ -154,8 +156,8 @@ class ObjectiveView : AppCompatActivity() {
                 //Load objective to be done and place in intent --> List APIObjectives OR ObjectiveModel
                 Thread{
                     val apiService = RestAPIService(TokenSingleton.instance.url)
-                    var objectivesNotify: List<APIObjectives> =
-                        apiService.getObjectives(TokenSingleton.instance.getToken()!!, true)
+                    var objectivesNotify: List<APIObjectives> = DataSingleton.instance.getObjectifTodoToday()
+                        //apiService.getObjectives(TokenSingleton.instance.getToken()!!, true)
 
                     val todoObjectives = mutableListOf<ObjectiveModel>();
                     if (objectivesNotify != null && !objectivesNotify.isEmpty()) {

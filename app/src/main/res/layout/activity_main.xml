@@ -115,8 +115,7 @@
                 android:id="@+id/signInBTN"
                 layout="@layout/signinbutton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/loginsettings"
@@ -155,6 +154,7 @@
                 android:layout_height="wrap_content"
                 android:text="Issues"
                 android:visibility="gone" />
+
 
         </LinearLayout>
 

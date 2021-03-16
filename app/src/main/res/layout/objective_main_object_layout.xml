@@ -92,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
 
                 <LinearLayout
@@ -307,16 +307,17 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <include
-                    android:id="@+id/qrCode"
-                    layout="@layout/qr_code_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
 
 
                 <include
                     android:id="@+id/saveProgress"
-                    layout="@layout/buttonprogressbar"
+                    layout="@layout/signinbutton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/qrCode"
+                    layout="@layout/qr_code_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

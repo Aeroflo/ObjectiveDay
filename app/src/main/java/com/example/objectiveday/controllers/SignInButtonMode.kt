@@ -5,7 +5,10 @@ import android.graphics.Color
 enum class SignInButtonMode {
     SIGN_IN("SIGN IN", "Signing! Please wait...", "SIGNED", "NOT SIGNED!"),
     REGISTER_DEVICE("REGISTER DEVICE", "Registering device! please wait", "DEVICE REGISTERED", "DEVICE NOT REGISTERED!"),
-    NEW_USER("REGISTRER USER/DEVICE", "Registering user/device! please wait...", "USER/DEVICE REGISTERED", "USER/DEVICE NOT REGISTERED");
+    NEW_USER("REGISTRER USER/DEVICE", "Registering user/device! please wait...", "USER/DEVICE REGISTERED", "USER/DEVICE NOT REGISTERED"),
+    SAVE("SAVE", "Saving. Please wait", "SAVED", "NOT SAVED"),
+    GENERATE_QR("GENERATE QR CODE", "Generating", "GENERATED", "NOT GENERATED"),
+    TODO("TODO", "Updating..", "DONE", "NOT DONE");
 
     var colorError = Color.RED
     var pressValue: String? = null;

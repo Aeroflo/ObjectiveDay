@@ -1,6 +1,5 @@
 package com.example.objectiveday
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -14,22 +13,24 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
-import com.example.objectiveday.NotificationThread.NotificationHandler
 import com.example.objectiveday.adapters.ObjectiveListAdapter
 import com.example.objectiveday.controllers.ButtonSignIn
-import com.example.objectiveday.controllers.ObjectiveHandlers
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.database.ObjectiveDBHelper
-import com.example.objectiveday.databinding.ObjectiveBinding
+import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
+import com.example.objectiveday.progressbars.ObjectiveProgressBar
 import com.example.objectiveday.webservices.apimodels.APIToken
 import com.example.objectiveday.webservices.apimodels.APIUserDeviceModel
 import com.example.objectiveday.webservices.retrofit.RestAPIService
-import com.google.android.gms.common.SignInButton
 import com.google.android.material.chip.Chip
+import java.io.*
+import java.nio.file.Files
 
 
 class MainActivity : AppCompatActivity() {
@@ -47,6 +48,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Test this is a test to load file
+        //DataSingleton.instance.testReadJsonObjectOnFile(this.applicationContext)
+      // DataSingleton.instance.testWriteJsonObjectOnFile(this.applicationContext)
 
         setContentView(R.layout.activity_main);
 
@@ -235,6 +240,12 @@ class MainActivity : AppCompatActivity() {
 
         //notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+
+        //Test ProgressBar Anim
+        //val pbTest : View = findViewById(R.id.testProgressBar)
+        //val pbApp : ObjectiveProgressBar = ObjectiveProgressBar(pbTest, this.applicationContext)
+
+
     }
 
     fun setAllNotClickable(
@@ -303,6 +314,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             R.id.demo -> {
+                    DataSingleton.instance.loadAPIObjectives(this.applicationContext)
                     Toast.makeText(this.applicationContext, "Access demo ", Toast.LENGTH_LONG).show()
                     val myIntent = Intent(this, ObjectiveView::class.java)
                     myIntent.putExtra("isDemo", "true") //Optional parameters
@@ -321,5 +333,46 @@ class MainActivity : AppCompatActivity() {
             this.listAdapter!!.updateDateSource(dbHelper.getAllObjective())
             this.listAdapter!!.notifyDataSetChanged()
         }*/
+    }
+
+    fun loadFile(){
+        return try {
+            val outStringBuf = StringBuffer()
+            var inputLine: String? = "Hello world"
+            /*
+                 * We have to use the openFileInput()-method the ActivityContext
+                 * provides. Again for security reasons with openFileInput(...)
+                 */
+
+            //check if the file exist
+            var path = this.applicationContext.getExternalFilesDir("test.txt")
+            val exist = Files.exists(this.applicationContext.getExternalFilesDir("test.txt")!!.toPath())
+            if(!exist){
+                Files.createFile(this.applicationContext.getExternalFilesDir("test.txt")!!.toPath())
+            }
+            //val fIn: FileInputStream = this.applicationContext.openFileOutput(path!!.canonicalPath.toString())
+            //val isr = InputStreamReader(fIn)
+            //val inBuff = BufferedReader(isr)
+            //while (inBuff.readLine().also({ inputLine = it }) != null) {
+            //    outStringBuf.append(inputLine)
+            //    outStringBuf.append("\n")
+            //}
+            //inBuff.close()
+            //outStringBuf.toString()
+            val outputStreamWriter = OutputStreamWriter(
+                applicationContext.openFileOutput(
+                    "test.txt",
+                    Context.MODE_PRIVATE
+                )
+            )
+            outputStreamWriter.write(inputLine)
+            outputStreamWriter.close()
+        } catch (e: IOException) {
+            System.out.println(e.message)
+        }
+    }
+
+    fun readFile(){
+
     }
 }

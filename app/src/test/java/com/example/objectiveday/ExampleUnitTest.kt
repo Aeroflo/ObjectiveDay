@@ -1,8 +1,13 @@
 package com.example.objectiveday
 
+import android.os.Environment
 import org.junit.Test
 
 import org.junit.Assert.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -13,5 +18,13 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun createFileInAssets(){
+        var inputStream : InputStream? = null
+        var string: String? = ""
+
+
     }
 }

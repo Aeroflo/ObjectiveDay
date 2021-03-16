@@ -50,7 +50,8 @@ class RestAPIService {
         )
     }
 
-    fun getObjectives(apiToken: APIToken, todo : Boolean?) : List<APIObjectives>{
+    fun getObjectives(apiToken: APIToken?, todo : Boolean?) : List<APIObjectives>{
+        if(apiToken == null) return mutableListOf<APIObjectives>()
         System.err.println("GET OBJECTIVE CALL")
         val retrofit = ServiceBuilder(ip).buildService(RestAPI::class.java)
         var deviceName : String = if(apiToken.device == null) "" else apiToken.device
