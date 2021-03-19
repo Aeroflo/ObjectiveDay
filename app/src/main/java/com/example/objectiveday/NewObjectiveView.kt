@@ -30,7 +30,7 @@ class NewObjectiveView : AppCompatActivity() {
 
 
 
-        var controller :ObjectiveBindingController = ObjectiveBindingController(this.applicationContext)
+        var controller :ObjectiveBindingController = ObjectiveBindingController(this.applicationContext, this@NewObjectiveView)
         var objectiveBinding : ObjectiveMainObjectLayoutBinding = DataBindingUtil.setContentView(this, R.layout.objective_main_object_layout)
 
         //objectiveBinding.saveProgress!!.getViewById(R.id.signinBTN_text)

@@ -22,6 +22,8 @@ import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.qrcodescanner.*
 import okhttp3.internal.Util
 import java.lang.Exception
@@ -67,24 +69,18 @@ class QRScannerActivity : AppCompatActivity() {
 
                     if(code.displayValue != null && code.displayValue.startsWith("ObjectiveDay=") && code.displayValue.length > 13 ){
                         firstDetection = true
-                        var id : String= code.displayValue.subSequence(13, code.displayValue.length).toString()
-                        var idLong : Long? = id.toLongOrNull()
+                        var ojectiveAPIString : String= code.displayValue.subSequence(13, code.displayValue.length).toString()
 
-                        if(idLong!= null) {
-                            Thread {
-                                val apiService = RestAPIService(TokenSingleton.instance.url)
-                                var idLong = id.toLongOrNull()
-                                var apiObjective: APIObjectives? = apiService.getObjectiveById(
-                                    TokenSingleton.instance.getToken()!!,
-                                    idLong!!
-                                )
+                        if(!ojectiveAPIString.isNullOrBlank()) {
+                            val gson = Gson()
+                            val arrayTutorialType =
+                                object : TypeToken<APIObjectives>() {}.type
+                            var apiObjectives: APIObjectives =
+                                gson.fromJson(ojectiveAPIString, arrayTutorialType)
 
-                                if(apiObjective != null){
-                                    val objectiveModel : ObjectiveModel = apiObjective.toModel()
+                            val objectiveModel : ObjectiveModel = apiObjectives.toModel()
 
-                                    runOnUiThread{callObjective(objectiveModel)}
-                                }
-                            }.start()
+                            runOnUiThread{callObjective(objectiveModel)}
                         }
                         else{
                             firstDetection = false

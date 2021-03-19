@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/objectivefilteralllayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/objectivecolapseborder">
+
+        <RadioGroup
+            android:id="@+id/filterradiobutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+
+            <RadioButton
+                android:id="@+id/filterdescriptionRB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Filter by description" />
+
+            <RadioButton
+                android:id="@+id/filterdaysRB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Filter by days" />
+
+            <RadioButton
+                android:id="@+id/filterdonedateRB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Filter by done date" />
+
+            <RadioButton
+                android:id="@+id/filtertodoRB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Show todos"
+                android:visibility="gone"/>
+
+            <RadioButton
+                android:id="@+id/filterdoneRB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Show done"
+                android:visibility="gone"/>
+        </RadioGroup>
+
+
+
+        <LinearLayout
+            android:id="@+id/objectivefilterdescriptionlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/filterdescriptiontitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Description" />
+
+            <EditText
+                android:id="@+id/filterdescriptionfield"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="Description" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/objectivefilterdaysandflags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <LinearLayout
+                android:id="@+id/objectivefilterdays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <CheckBox
+                    android:id="@+id/filtermonday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Monday" />
+
+                <CheckBox
+                    android:id="@+id/filtertuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tuesday" />
+
+                <CheckBox
+                    android:id="@+id/filterwednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Wednesday" />
+
+                <CheckBox
+                    android:id="@+id/filterthursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thursday" />
+
+                <CheckBox
+                    android:id="@+id/filterfriday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Friday" />
+
+                <CheckBox
+                    android:id="@+id/filtersaturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Saturday" />
+
+                <CheckBox
+                    android:id="@+id/filtersunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/filterbutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="FILTER" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

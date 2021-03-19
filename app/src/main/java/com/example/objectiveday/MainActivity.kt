@@ -1,8 +1,11 @@
 package com.example.objectiveday
 
+import android.app.Dialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.TimePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
@@ -10,18 +13,15 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.os.*
 import android.provider.Settings
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.objectiveday.adapters.ObjectiveListAdapter
 import com.example.objectiveday.controllers.ButtonSignIn
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.database.ObjectiveDBHelper
+import com.example.objectiveday.dialogs.ObjectiveFilter
+import com.example.objectiveday.dialogs.ObjectiveFilterDialog
 import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.progressbars.ObjectiveProgressBar
@@ -29,8 +29,13 @@ import com.example.objectiveday.webservices.apimodels.APIToken
 import com.example.objectiveday.webservices.apimodels.APIUserDeviceModel
 import com.example.objectiveday.webservices.retrofit.RestAPIService
 import com.google.android.material.chip.Chip
+import com.google.android.material.internal.NavigationMenu
+import com.google.android.material.navigation.NavigationView
 import java.io.*
 import java.nio.file.Files
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -48,6 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         //Test this is a test to load file
         //DataSingleton.instance.testReadJsonObjectOnFile(this.applicationContext)
@@ -246,7 +252,41 @@ class MainActivity : AppCompatActivity() {
         //val pbApp : ObjectiveProgressBar = ObjectiveProgressBar(pbTest, this.applicationContext)
 
 
+        val testTimeButton : Button = findViewById(R.id.testTimePicker)
+        getTime(testTimeButton, this)
     }
+
+    fun getTime(button: Button, context: Context){
+
+        val cal = Calendar.getInstance()
+
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
+            cal.set(Calendar.HOUR_OF_DAY, hour)
+            cal.set(Calendar.MINUTE, minute)
+
+            //textView.text = SimpleDateFormat("HH:mm").format(cal.time)
+        }
+
+        button.setOnClickListener {
+            //TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+            var filter = ObjectiveFilterDialog()
+                //.onDismiss(this)
+                //.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
+            //var dialogInterface : DialogInterface = DialogInterface()
+            //filter.onDismiss(dialogInterface)
+            //filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
+            //filter.setTargetFragment(this@MainActivity, 22)
+            filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
+            //filter.getFilterButtonT()!!.setOnClickListener {
+            //    System.out.println("FILTER pressed")
+            //    filter.dismiss()
+            //}
+        }
+    }
+
+
+
+
 
     fun setAllNotClickable(
         buttonSignIn: View,
@@ -372,7 +412,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun readFile(){
+    override fun onSupportNavigateUp(): Boolean {
+        return super.onSupportNavigateUp()
+    }
 
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        super.onActivityReenter(resultCode, data)
     }
 }

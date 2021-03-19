@@ -7,10 +7,8 @@ import java.io.Serializable
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
-import kotlin.Comparator
-import kotlin.collections.ArrayList
-
 import kotlin.math.roundToInt
 
 class ObjectiveModel  private constructor (
@@ -181,6 +179,30 @@ class ObjectiveModel  private constructor (
         return dateFormat
     }
 
+    fun getTimeHHMM() :String{
+        if(time == null ) return ""
+        else{
+            var stringBuilder: StringBuilder = StringBuilder()
+            stringBuilder =
+                stringBuilder.append(String.format("%02d", time!!.hour)).append(":")
+                    .append(String.format("%02d", time!!.minute))
+            return stringBuilder.toString()
+        }
+    }
+
+    fun getLastTimeDone() : String{
+        if(this.lastDoneTime == null) return "NOT DONE"
+        return printLastDoneTime()
+    }
+
+    private fun printLastDoneTime() : String{
+        val now = LocalDateTime.now()
+        val hours : Long = this.lastDoneTime!!.until(now, ChronoUnit.HOURS)
+        if(hours == 1L) return ""+hours+" HOUR AGO"
+        else if (hours < 24L) return ""+hours+" HOURS AGO"
+        else return Utils.localDateTimeToString(this.lastDoneTime!!, "YYYY-MM-dd hh:mm")
+    }
+
     var nextDates : Set<LocalDateTime>? = null
     fun getNextDateList(reset : Boolean) : Set<LocalDateTime>? {
         //if(this.dayChecker == 0) return null
@@ -237,6 +259,12 @@ class ObjectiveModel  private constructor (
             DayOfWeek.SATURDAY -> return isSaturday
             DayOfWeek.SUNDAY -> return isSunday
         }
+        return false
+    }
+
+    //For notification
+    fun isObjectiveTodoTodayTime() : Boolean{
+        if(time == null) return isObjectiveTodoToday()
         return false
     }
 }

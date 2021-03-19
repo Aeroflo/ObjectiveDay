@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.example.objectiveday.ObjectiveView">
 
     <data>
         <variable
@@ -92,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
 
                 <LinearLayout
@@ -113,8 +114,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.1"
                         android:checked="@{objectiveMainModel.notifiable}"
-                        app:notifySwitch="@{objectiveMainModel.notifiable}"
-                        android:text="Notify" />
+                        android:text="Notify"
+                        app:notifySwitch="@{objectiveMainModel.notifiable}" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -225,19 +226,46 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/time"
+                                android:id="@+id/timePicker"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
+                                android:gravity="center"
                                 android:text="Time: "
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/textView4"
+                                android:id="@+id/time"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
-                                android:text="TextView" />
+                                android:gravity="center"
+                                android:text="@{objectiveMainModel.getTimeHHMM()}" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/last_time_done"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.5"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/last_time_done_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="Last time done"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/lasttimedonevalue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="@{objectiveMainModel.getLastTimeDone()}" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -245,21 +273,24 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="0.5"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:visibility="gone">
 
                             <TextView
-                                android:id="@+id/textView5"
+                                android:id="@+id/deadlinetext"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
+                                android:gravity="center"
                                 android:text="Deadline: "
                                 android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/textView6"
+                                android:id="@+id/deadlinevalue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
+                                android:gravity="center"
                                 android:text="TextView" />
                         </LinearLayout>
 
@@ -308,18 +339,17 @@
                 </LinearLayout>
 
 
-
                 <include
                     android:id="@+id/saveProgress"
                     layout="@layout/signinbutton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent" />
 
                 <include
                     android:id="@+id/qrCode"
                     layout="@layout/qr_code_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent" />
 
 
             </LinearLayout>

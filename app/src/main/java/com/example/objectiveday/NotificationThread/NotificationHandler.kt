@@ -3,20 +3,16 @@ package com.example.objectiveday.NotificationThread
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.Icon
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
-import com.example.objectiveday.NewObjectiveView
-import com.example.objectiveday.ObjectiveView
+import com.example.objectiveday.R
 import com.example.objectiveday.TodoActivity
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
 import com.example.objectiveday.webservices.retrofit.RestAPIService
-import java.lang.Exception
 import java.lang.StringBuilder
 
 class NotificationHandler {
@@ -72,14 +68,14 @@ class NotificationHandler {
 
                 Thread {
                     val apiService = RestAPIService(TokenSingleton.instance.url)
-                    var objectivesTodo: List<APIObjectives> = DataSingleton.instance.getObjectifTodoToday()
+                    var objectivesTodo: List<APIObjectives> = DataSingleton.instance.getObjectiveToNotify()
                         //apiService.getObjectives(TokenSingleton.instance.getToken(), true)
 
                     if (objectivesTodo != null && !objectivesTodo.isEmpty()) {
                         sendNotification(getObjectivesToNotify(objectivesTodo))
                     }
                 }.start()
-                    notificationHandler?.postDelayed(this, 60000)
+                    notificationHandler?.postDelayed(this, 360000) //every hour 360000
 
             }
 
@@ -104,7 +100,7 @@ class NotificationHandler {
                     }
 
                     val mBuilder = NotificationCompat.Builder(context!!, CHANNEL_ID)
-                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setSmallIcon(R.drawable.ic_objectiveday)
                         .setContentTitle(title.toString())
                         .setGroupSummary(true)
                         .setGroup(GROUP_KEY_NOTIFY)

@@ -4,6 +4,7 @@ import com.example.objectiveday.Utils
 import com.example.objectiveday.models.ObjectiveModel
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 data class APIObjectives (
     @SerializedName("id") val id : Long? = null,
@@ -28,11 +29,14 @@ data class APIObjectives (
     fun toModel() : ObjectiveModel{
         var childrenObjective = ArrayList<ObjectiveModel>()
         if(this.childrenObjective!= null) this.childrenObjective.forEach{child -> childrenObjective.add(child.toModel())}
+
+        var time : LocalTime? = Utils.stringToTime(time)
         var objectiveModelBuilder =  ObjectiveModel.Builder()
             .withId(id)
             .withParentId(parent_id)
             .withDayChecker(parseDays())
             .withDescription(if(description !=null) description else "")
+            .withTime(time)
             //.withIsActive()
             .withIsNotifiable(if(notify !=null) notify else false)
             .withChildren(childrenObjective.toTypedArray())

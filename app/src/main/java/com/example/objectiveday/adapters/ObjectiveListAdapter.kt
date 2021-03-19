@@ -14,7 +14,7 @@ import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
 import com.example.objectiveday.models.ObjectiveModel
 import kotlin.collections.HashMap
 
-class ObjectiveListAdapter(private val context: Context,
+class ObjectiveListAdapter(private val context: Context, private val applicationContext: Context,
                     private var dataSource: List<ObjectiveModel>) : BaseAdapter() {
 
     //Map position view
@@ -38,7 +38,7 @@ class ObjectiveListAdapter(private val context: Context,
             binding = convertView.tag as ObjectiveMainObjectLayoutBinding
         }
 
-        var controller : ObjectiveBindingController = ObjectiveBindingController(this.context)
+        var controller : ObjectiveBindingController = ObjectiveBindingController(this.context, this.applicationContext )
         binding = controller.prepareBinding(binding, getItem(position) as ObjectiveModel)!!
         //binding?.objectiveMainModel = getItem(position) as ObjectiveModel
 

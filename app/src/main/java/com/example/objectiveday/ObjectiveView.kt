@@ -18,6 +18,9 @@ import com.example.objectiveday.controllers.ObjectiveWeekController
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.databinding.ObjectiveBinding
 import com.example.objectiveday.databinding.ObjectiveListLayoutBinding
+import com.example.objectiveday.dialogs.ObjectiveFilter
+import com.example.objectiveday.dialogs.ObjectiveFilterDialog
+import com.example.objectiveday.dialogs.ObjectiveFilterType
 import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
@@ -30,7 +33,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class ObjectiveView : AppCompatActivity() {
+class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener {
+
 
     var objectiveList : List<ObjectiveModel> = ArrayList<ObjectiveModel>()
     var listAdapter : ObjectiveListAdapter? = null
@@ -47,6 +51,7 @@ class ObjectiveView : AppCompatActivity() {
         System.out.println("ON CREATE CALL")
          super.onCreate(savedInstanceState)
 
+
         val intent = intent
         isDemo = intent.getStringExtra("isDemo")
         try{
@@ -62,7 +67,7 @@ class ObjectiveView : AppCompatActivity() {
 
         var list  = arrayListOf<ObjectiveModel>()
         this.objectiveList = list
-        listAdapter = ObjectiveListAdapter(applicationContext, this.objectiveList)
+        listAdapter = ObjectiveListAdapter(applicationContext, this@ObjectiveView, this.objectiveList)
 
 
         mainBinding.root.listview.adapter = listAdapter
@@ -94,6 +99,28 @@ class ObjectiveView : AppCompatActivity() {
         if(NotificationHandler.notificationHandler == null) {
             NotificationHandler.setUpHandler(this.applicationContext)
         }
+
+        //Bottom nav listener
+        mainBinding.root.navigationView.setOnNavigationItemSelectedListener{ item ->
+            when (item.itemId) {
+                R.id.navigation_filter -> {
+                    var filter = ObjectiveFilterDialog()
+                    filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
+                }
+                R.id.navigation_done -> {
+                    var todo = DataSingleton.instance.getObjectifTodoToday()
+                    updateObjectiveUIFromAPI(todo)
+                }
+                R.id.navigation_todo -> {
+                    var objectiveFilter = ObjectiveFilter.Builder()
+                    objectiveFilter.withFilterType(ObjectiveFilterType.TODO)
+                    var done = DataSingleton.instance.getDataFiltered(objectiveFilter.build())
+                    updateObjectiveUIFromAPI(done)
+                }
+            }
+            true
+
+        }
         hideKeyboard()
     }
 
@@ -107,6 +134,19 @@ class ObjectiveView : AppCompatActivity() {
                 }
                 runOnUiThread {updateListUI(objectiveList)}
             }.start()
+
+        return
+    }
+
+    fun updateObjectiveUIFromAPI(apiObjectives: List<APIObjectives>){
+        Thread {
+            val apiService = RestAPIService(TokenSingleton.instance.url)
+            objectiveList = arrayListOf<ObjectiveModel>()
+            apiObjectives.forEach { o ->
+                (objectiveList as ArrayList<ObjectiveModel>).add(o.toModel())
+            }
+            runOnUiThread {updateListUI(objectiveList)}
+        }.start()
 
         return
     }
@@ -177,5 +217,12 @@ class ObjectiveView : AppCompatActivity() {
             else -> return super.onOptionsItemSelected(item)
         }
 
+    }
+
+    override fun sendInput(filter: ObjectiveFilter?) {
+        if(filter != null){
+            var apiObjectivesFiltered = DataSingleton.instance.getDataFiltered(filter)
+            updateObjectiveUIFromAPI(apiObjectivesFiltered)
+        }
     }
 }

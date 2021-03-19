@@ -26,7 +26,8 @@ class Utils {
             return null
         }
 
-        fun stringToDateTime(string : String) : LocalDateTime?{
+        fun stringToDateTime(string : String?) : LocalDateTime?{
+            if(string.isNullOrBlank()) return null
             try {
                 var localDateTime: LocalDateTime = LocalDateTime.parse(string)
                 return localDateTime

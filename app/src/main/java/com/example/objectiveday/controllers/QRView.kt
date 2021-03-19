@@ -10,6 +10,7 @@ import android.widget.ProgressBar
 import com.example.objectiveday.R
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
+import com.google.gson.Gson
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
@@ -36,7 +37,10 @@ class QRView{
             val apiObjectives = APIObjectives(objectiveModel.id, objectiveModel.parentId, objectiveModel.description,
                 objectiveModel.isMonday, objectiveModel.isTuesday, objectiveModel.isWednesday, objectiveModel.isThursday, objectiveModel.isFriday, objectiveModel.isSaturday, objectiveModel.isSunday,
                 objectiveModel.time.toString(), objectiveModel.isNotifiable, null, null, null, objectiveModel.isActive, null, null)
-            code = code.append(apiObjectives.toString())
+
+            val gson = Gson()
+            val json: String = gson.toJson(apiObjectives)
+            code = code.append(json)
             //if(parentId != null) code = code.append(parentId)
             //else code = code.append(id)
 

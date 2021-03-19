@@ -2,7 +2,10 @@ package com.example.objectiveday.internalData
 
 import android.content.Context
 import com.example.objectiveday.Utils
+import com.example.objectiveday.dialogs.ObjectiveFilter
+import com.example.objectiveday.dialogs.ObjectiveFilterType
 import com.example.objectiveday.models.ObjectiveModel
+import com.example.objectiveday.models.ObjectiveStatus
 import com.example.objectiveday.webservices.apimodels.APIObjectives
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -51,6 +54,91 @@ class DataSingleton {
         return listToReturn.toList()
     }
 
+    fun getDataFiltered(objectiveFilter: ObjectiveFilter?) : List<APIObjectives>{
+        if(objectiveFilter == null) return getData()
+        else{
+            when(objectiveFilter!!.objectiveFilterType){
+                ObjectiveFilterType.NONE -> return getData()
+                ObjectiveFilterType.DESCRIPTION ->{
+                    if(objectiveFilter.description.isNullOrBlank()) return getData()
+                    else{
+                        var listToReturn = mutableListOf<APIObjectives>()
+                        existingObjectives.forEach{k, v ->
+                            if(v.description!!.toLowerCase().contains(objectiveFilter!!.description!!.toLowerCase())) listToReturn.add(v)
+                        }
+                        newObjectives.forEach{k, v ->
+                            if(v.description!!.toLowerCase().contains(objectiveFilter!!.description!!.toLowerCase())) listToReturn.add(v)
+                        }
+                        return listToReturn
+                    }
+                }
+                ObjectiveFilterType.TODO -> {
+                    var listToReturn = mutableListOf<APIObjectives>()
+                    existingObjectives.forEach{k, v ->
+                        if(v.toModel().getObjectiveStatus().equals(ObjectiveStatus.TODO)) listToReturn.add(v)
+                    }
+                    newObjectives.forEach{ k, v ->
+                        if(v.toModel().getObjectiveStatus().equals(ObjectiveStatus.TODO)) listToReturn.add(v)
+                    }
+                    return listToReturn.toList()
+                }
+                ObjectiveFilterType.DONE -> {
+                    var listToReturn = mutableListOf<APIObjectives>()
+                    existingObjectives.forEach{k, v ->
+                        if(v.toModel().getObjectiveStatus().equals(ObjectiveStatus.DONE)) listToReturn.add(v)
+                    }
+                    newObjectives.forEach{ k, v ->
+                        if(v.toModel().getObjectiveStatus().equals(ObjectiveStatus.DONE)) listToReturn.add(v)
+                    }
+                    return listToReturn.toList()
+                }
+                ObjectiveFilterType.DAYS -> {
+                    var listToReturn = mutableListOf<APIObjectives>()
+                    if(!isFilterDayValid(objectiveFilter)) return listToReturn.toList()
+
+                    existingObjectives.forEach{k, v ->
+                        if(isObjectiveOnDay(objectiveFilter, v)) listToReturn.add(v)
+                    }
+                    newObjectives.forEach{ k, v ->
+                        if(isObjectiveOnDay(objectiveFilter, v)) listToReturn.add(v)
+                    }
+                    return listToReturn.toList()
+
+                }
+            }
+        }
+        return getData()
+    }
+
+    private fun isFilterDayValid(objectiveFilter: ObjectiveFilter?) : Boolean{
+        if(objectiveFilter == null) return false
+        else{
+
+            if(objectiveFilter.monday != null && objectiveFilter.monday!!) return true
+            if(objectiveFilter.tuesday != null && objectiveFilter.tuesday!!) return true
+            if(objectiveFilter.wednesday != null && objectiveFilter.wednesday!!) return true
+            if(objectiveFilter.thursday != null && objectiveFilter.thursday!!) return true
+            if(objectiveFilter.friday!= null && objectiveFilter.friday!!) return true
+            if(objectiveFilter.saturday != null && objectiveFilter.saturday!!) return true
+            if(objectiveFilter.sunday != null && objectiveFilter.sunday!!) return true
+        }
+        return false
+    }
+
+    private fun isObjectiveOnDay(objectiveFilter: ObjectiveFilter?, apiObjectives: APIObjectives) :Boolean{
+        if(objectiveFilter == null) return false
+        else{
+            if(objectiveFilter.monday != null && objectiveFilter.monday!! && apiObjectives.monday!= null && apiObjectives.monday!!) return true
+            if(objectiveFilter.tuesday != null && objectiveFilter.tuesday!! && apiObjectives.tuesday!= null && apiObjectives.tuesday!!) return true
+            if(objectiveFilter.wednesday != null && objectiveFilter.wednesday!! && apiObjectives.wednesday!= null && apiObjectives.wednesday!!) return true
+            if(objectiveFilter.thursday != null && objectiveFilter.thursday!! && apiObjectives.thurday!= null && apiObjectives.thurday!!) return true
+            if(objectiveFilter.friday != null && objectiveFilter.friday!! && apiObjectives.friday!= null && apiObjectives.friday!!) return true
+            if(objectiveFilter.saturday != null && objectiveFilter.saturday!! && apiObjectives.saturday!= null && apiObjectives.saturday!!) return true
+            if(objectiveFilter.sunday != null && objectiveFilter.sunday!! && apiObjectives.sunday!= null && apiObjectives.sunday!!) return true
+        }
+        return false
+    }
+
     fun getObjectifTodoToday() : List<APIObjectives>{
         var listToReturn = mutableListOf<APIObjectives>()
         var now = LocalDateTime.now()
@@ -82,6 +170,46 @@ class DataSingleton {
         }
 
         return listToReturn
+    }
+
+    fun getObjectiveToNotify() : List<APIObjectives>{
+        var listToReturn = mutableListOf<APIObjectives>()
+
+        listToReturn.addAll(getObjectiveTodo(LocalDateTime.now(), true, existingObjectives.values.filter { o -> o.notify != null && o.notify }.toList()))
+        listToReturn.addAll(getObjectiveTodo(LocalDateTime.now(), true, newObjectives.values.filter { o -> o.notify != null && o.notify }.toList()))
+
+        return listToReturn
+    }
+
+    private fun getObjectiveTodo(date : LocalDateTime, checkTime : Boolean, apiObjectives: List<APIObjectives>) : List<APIObjectives>{
+        var listToReturn = mutableListOf<APIObjectives>()
+        if(apiObjectives.isNullOrEmpty()) return listToReturn
+        var dayOfWeek = date.dayOfWeek
+
+        apiObjectives.forEach{o ->
+            when (dayOfWeek) {
+                DayOfWeek.MONDAY -> if (o.monday != null && o.monday && isObjectiveTodoOnTime(date, o, checkTime)) listToReturn.add(o)
+                DayOfWeek.TUESDAY -> if (o.tuesday != null && o.tuesday && isObjectiveTodoOnTime(date, o, checkTime)) listToReturn.add(o)
+                DayOfWeek.WEDNESDAY -> if (o.wednesday != null && o.wednesday && isObjectiveTodoOnTime(date, o,checkTime)) listToReturn.add(o)
+                DayOfWeek.THURSDAY -> if (o.thurday != null && o.thurday && isObjectiveTodoOnTime(date, o,checkTime)) listToReturn.add(o)
+                DayOfWeek.FRIDAY -> if (o.friday != null && o.friday && isObjectiveTodoOnTime(date, o,checkTime)) listToReturn.add(o)
+                DayOfWeek.SATURDAY -> if (o.saturday != null && o.saturday && isObjectiveTodoOnTime(date, o,checkTime)) listToReturn.add(o)
+                DayOfWeek.SUNDAY -> if (o.sunday != null && o.sunday) listToReturn.add(o)
+                }
+        }
+
+        return listToReturn
+    }
+
+    private fun isObjectiveTodoOnTime(date : LocalDateTime, apiObjectives: APIObjectives, checkTime : Boolean) : Boolean{
+        var dayStart = date.withHour(0).withMinute(0).withSecond(0).withNano(0)
+        var lastDone : LocalDateTime? = Utils.stringToDateTime(apiObjectives.lastDoneDate)
+        var needToBeDoneOnTheDay = lastDone == null || lastDone!!.isBefore(dayStart)
+        if(!apiObjectives.time.isNullOrBlank() && checkTime){
+            var localTime = Utils.stringToTime(apiObjectives.time)
+            var plusHour = date.toLocalTime().plusHours(1)
+            return needToBeDoneOnTheDay && localTime!!.isBefore(plusHour)
+        }else return needToBeDoneOnTheDay
     }
 
     fun flushData(){

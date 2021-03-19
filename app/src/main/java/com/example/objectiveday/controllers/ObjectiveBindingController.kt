@@ -1,37 +1,30 @@
 package com.example.objectiveday.controllers
 
+import android.app.TimePickerDialog
 import android.content.Context
-import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Message
-import android.text.Layout
-import android.view.Display
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.*
-import androidx.core.graphics.drawable.DrawableCompat
 import com.example.objectiveday.R
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
 import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.models.ObjectiveStatus
 import com.example.objectiveday.webservices.apimodels.APIObjectives
-import com.example.objectiveday.webservices.retrofit.RestAPIService
-import kotlinx.android.synthetic.main.objective_main_object_layout.view.*
-import kotlinx.android.synthetic.main.qr_code_layout.view.*
+import java.lang.StringBuilder
+import java.time.LocalTime
+import java.util.*
 
 class ObjectiveBindingController {
 
     var context : Context
-    constructor(context: Context) {
+    var applicationContext : Context
+    constructor(context: Context, applicationContext: Context) {
         this.context = context
+        this.applicationContext = applicationContext
     }
 
     fun prepareBinding(binding: ObjectiveMainObjectLayoutBinding?, objectiveModel: ObjectiveModel) : ObjectiveMainObjectLayoutBinding?
@@ -70,8 +63,9 @@ class ObjectiveBindingController {
         binding.weekday.setOnClickListener(){view -> verifySwitchAndValidate(binding, view)}
         binding.weekend.setOnClickListener{view -> verifySwitchAndValidate(binding, view) }
 
-        //binding.notifySW.setOnCheckedChangeListener{buttonView, isChecked -> updateNotify(binding, buttonView, isChecked) }
 
+
+        getTime(binding, this.applicationContext)
 
         var buttonSave: ButtonSignIn = ButtonSignIn(context, binding.saveProgress)
         buttonSave.setModeSave()
@@ -144,6 +138,37 @@ class ObjectiveBindingController {
             }.start()
         }
         return binding
+    }
+
+    fun getTime( binding : ObjectiveMainObjectLayoutBinding,  context: Context){
+
+        val button : TextView = binding.timePicker
+
+
+        button.setOnClickListener {
+            val cal = Calendar.getInstance()
+
+            val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
+                cal.set(Calendar.HOUR_OF_DAY, hour)
+                cal.set(Calendar.MINUTE, minute)
+
+                mHandler.post(
+                    {
+                        var localTime: LocalTime =
+                            LocalTime.now().withHour(hour).withMinute(minute).withSecond(0)
+                                .withNano(0)
+                        var stringBuilder: StringBuilder = StringBuilder()
+                        stringBuilder =
+                            stringBuilder.append(String.format("%02d", hour)).append(":")
+                                .append(String.format("%02d", minute))
+                        binding.time.text = stringBuilder.toString()
+                        binding.objectiveMainModel!!.time = localTime
+                        binding.invalidateAll()
+                    }
+                )
+            }
+            TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+        }
     }
 
     val mHandler: Handler = object : Handler() {
