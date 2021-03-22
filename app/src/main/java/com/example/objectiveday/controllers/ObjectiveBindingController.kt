@@ -8,8 +8,10 @@ import android.os.Message
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.fragment.app.FragmentManager
 import com.example.objectiveday.R
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
+import com.example.objectiveday.dialogs.ObjectiveFilterDialog
 import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.models.ObjectiveStatus
@@ -22,9 +24,11 @@ class ObjectiveBindingController {
 
     var context : Context
     var applicationContext : Context
-    constructor(context: Context, applicationContext: Context) {
+    var supportFragmentManager : FragmentManager? = null
+    constructor(context: Context, applicationContext: Context, supportFragmentManager : FragmentManager) {
         this.context = context
         this.applicationContext = applicationContext
+        this.supportFragmentManager = supportFragmentManager
     }
 
     fun prepareBinding(binding: ObjectiveMainObjectLayoutBinding?, objectiveModel: ObjectiveModel) : ObjectiveMainObjectLayoutBinding?
@@ -33,15 +37,23 @@ class ObjectiveBindingController {
         binding.objectiveMainModel = objectiveModel
 
         verifyObjectiveStatusAndValidate(binding)
+        var buttonSave: ButtonSignIn = ButtonSignIn(context, binding.saveProgress)
 
+        buttonSave.setModeSave()
         binding.details.setOnClickListener {
             val view = binding.moreDetailsLayout
             val button = binding.details
             if(view.visibility == View.GONE){
                 //collapseOtherDetails(position)
+                //binding.saveProgress.setBackgroundColor()
                 view.visibility = View.VISIBLE
                 val animation = AnimationUtils.loadAnimation(context, R.anim.slide_left)
                 view.startAnimation(animation)
+                mHandler.post {
+                    buttonSave.buttonDisplay()
+                    buttonSave.buttonSetText("Save")
+                    binding.invalidateAll()
+                }
             } else{
                 val animation = AnimationUtils.loadAnimation(context, R.anim.slide_right_out)
                 view.startAnimation(animation)
@@ -50,6 +62,7 @@ class ObjectiveBindingController {
                 }, 200)
             }
         }
+
 
         binding.monday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
         binding.tuesday.setOnCheckedChangeListener { buttonView, isChecked -> verifyWeekDayCheckBoxAndValidate(binding, buttonView, isChecked) }
@@ -66,9 +79,6 @@ class ObjectiveBindingController {
 
 
         getTime(binding, this.applicationContext)
-
-        var buttonSave: ButtonSignIn = ButtonSignIn(context, binding.saveProgress)
-        buttonSave.setModeSave()
 
         binding.saveProgress.setOnClickListener{
 
@@ -110,33 +120,15 @@ class ObjectiveBindingController {
         }
 
         //QR CODE
-        binding.qrCode
-        var qrLayout : View = binding.qrCode
-        var buttonQR : View = qrLayout.findViewById(R.id.genqrBTN)
-        var buttonQRCode: ButtonSignIn = ButtonSignIn(context, buttonQR)
-        buttonQRCode.setModeGenerateQRCode()
-        buttonQR.setOnClickListener{
-            mHandler.post({
-                buttonQR.isEnabled = false
-                buttonQRCode.buttonActivated()
-            })
+        binding.qrcodeimage.setOnClickListener{
+            System.out.println("QR Touched")
+            var qrView = QRView(binding.objectiveMainModel)
+            qrView.show(this.supportFragmentManager, QRView.TAG)
+            //qrView.loadQRCode(binding.objectiveMainModel)
 
-
-            var qrView : QRView = QRView(this.context, qrLayout)
-            //qrView.showProgressBar()
-            Thread {
-                Thread.sleep(2000)
-                mHandler.post({
-                    qrView.loadQRCode(binding.objectiveMainModel)
-                    //qrView.hideProgressBar()
-                    buttonQR.isEnabled = true
-                    //buttonQR.text = "Generated"
-                    buttonQRCode.buttonFinished(success = true)
-                    qrLayout.invalidate()
-                    binding.invalidateAll()
-                })
-            }.start()
         }
+
+
         return binding
     }
 

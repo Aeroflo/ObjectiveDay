@@ -67,7 +67,7 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
 
         var list  = arrayListOf<ObjectiveModel>()
         this.objectiveList = list
-        listAdapter = ObjectiveListAdapter(applicationContext, this@ObjectiveView, this.objectiveList)
+        listAdapter = ObjectiveListAdapter(applicationContext, this@ObjectiveView, this.objectiveList, supportFragmentManager)
 
 
         mainBinding.root.listview.adapter = listAdapter
@@ -108,7 +108,9 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
                     filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
                 }
                 R.id.navigation_done -> {
-                    var todo = DataSingleton.instance.getObjectifTodoToday()
+                    var objectiveFilter = ObjectiveFilter.Builder()
+                    objectiveFilter.withFilterType(ObjectiveFilterType.DONE)
+                    var todo = DataSingleton.instance.getDataFiltered(objectiveFilter.build())
                     updateObjectiveUIFromAPI(todo)
                 }
                 R.id.navigation_todo -> {

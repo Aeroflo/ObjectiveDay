@@ -3,10 +3,15 @@ package com.example.objectiveday.controllers
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.fragment.app.DialogFragment
 import com.example.objectiveday.R
 import com.example.objectiveday.models.ObjectiveModel
 import com.example.objectiveday.webservices.apimodels.APIObjectives
@@ -19,16 +24,42 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import kotlinx.android.synthetic.main.qr_code_layout.view.*
 import java.lang.StringBuilder
 
-class QRView{
+class QRView(private val objectiveModel: ObjectiveModel?) : DialogFragment() {
 
-    var context: Context? = null
     var qrView : ImageView?= null
-    var progressBar : ProgressBar? = null
+    var okButton : Button? = null
 
-    constructor(context: Context, view : View){
-        this.context = context
+    companion object {
+        const val TAG = "QRDialog"
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.qr_code_layout, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         this.qrView = view.findViewById(R.id.qrCodeIMG)
-        this.progressBar = view.findViewById(R.id.progressBarQr)
+        this.okButton = view.findViewById(R.id.qrOk)
+        if(this.okButton!= null){
+            this.okButton!!.setOnClickListener {
+                this.dismiss()
+            }
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        loadQRCode(this.objectiveModel)
     }
 
     fun loadQRCode(objectiveModel: ObjectiveModel?){
@@ -46,7 +77,6 @@ class QRView{
 
             var bitmap: Bitmap = generateQRCode(code.toString())
             qrView?.setImageBitmap(bitmap)
-            qrView?.visibility= View.VISIBLE
             qrView?.invalidate()
         }
 
@@ -75,11 +105,4 @@ class QRView{
         return bitmap
     }
 
-    fun showProgressBar(){
-        this.progressBar?.visibility =View.VISIBLE
-    }
-
-    fun hideProgressBar(){
-        this.progressBar?.visibility = View.GONE
-    }
 }

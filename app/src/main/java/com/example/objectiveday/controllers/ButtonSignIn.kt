@@ -62,6 +62,24 @@ class ButtonSignIn {
         }
     }
 
+    fun buttonDisplay(){
+        progressBar!!.visibility = View.GONE
+        runnable!!.stopTheAnim()
+        constraintLayout!!.setBackgroundColor(Color.WHITE)
+        /*when(mode){
+            SignInButtonMode.SAVE -> constraintLayout!!.setBackgroundColor(Color.WHITE)
+            SignInButtonMode.SIGN_IN -> constraintLayout!!.setBackgroundColor(Color.WHITE)
+            SignInButtonMode.REGISTER_DEVICE -> constraintLayout!!.setBackgroundColor(Color.WHITE)
+            SignInButtonMode.NEW_USER -> constraintLayout!!.setBackgroundColor(Color.WHITE)
+            SignInButtonMode.GENERATE_QR -> constraintLayout!!.setBackgroundColor(Color.WHITE)
+        }*/
+        //constraintLayout!!.setBackgroundColor(Color.WHITE)
+        //signInText!!.text = mode.success
+        var text = mode.success
+        if (text == null) text = "Button does not work"
+        buttonSetText(text)
+    }
+
     fun buttonSetText(text:String){
         signInText!!.text = text
     }
@@ -107,6 +125,5 @@ class ButtonSignIn {
             this.signInText!!.text = mode.success
             constraintLayout!!.setBackgroundColor((Color.GREEN))
         }
-        //if(objectiveModel.la)
     }
 }

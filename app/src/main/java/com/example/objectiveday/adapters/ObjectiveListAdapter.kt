@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.fragment.app.FragmentManager
 import com.example.objectiveday.R
 import com.example.objectiveday.controllers.ObjectiveBindingController
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
@@ -15,7 +16,8 @@ import com.example.objectiveday.models.ObjectiveModel
 import kotlin.collections.HashMap
 
 class ObjectiveListAdapter(private val context: Context, private val applicationContext: Context,
-                    private var dataSource: List<ObjectiveModel>) : BaseAdapter() {
+                    private var dataSource: List<ObjectiveModel>, private val supportFragementManager : FragmentManager
+) : BaseAdapter() {
 
     //Map position view
     var mapObjectiveView : MutableMap<Int, ObjectiveMainObjectLayoutBinding> = HashMap()
@@ -38,7 +40,7 @@ class ObjectiveListAdapter(private val context: Context, private val application
             binding = convertView.tag as ObjectiveMainObjectLayoutBinding
         }
 
-        var controller : ObjectiveBindingController = ObjectiveBindingController(this.context, this.applicationContext )
+        var controller : ObjectiveBindingController = ObjectiveBindingController(this.context, this.applicationContext, this.supportFragementManager )
         binding = controller.prepareBinding(binding, getItem(position) as ObjectiveModel)!!
         //binding?.objectiveMainModel = getItem(position) as ObjectiveModel
 
