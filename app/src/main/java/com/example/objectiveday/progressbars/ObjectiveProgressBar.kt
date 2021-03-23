@@ -8,6 +8,7 @@ import android.os.Handler
 import android.view.View
 import android.widget.ImageView
 import com.example.objectiveday.R
+import com.example.objectiveday.models.ObjectiveStatus
 
 
 class ObjectiveProgressBar {
@@ -21,9 +22,14 @@ class ObjectiveProgressBar {
     public var image4 : Bitmap? = null
     public var image5 : Bitmap? = null
 
+    public var todo : Bitmap? = null
+    public var done : Bitmap? = null
+
     public var imageView : ImageView? = null
 
     private var isRunning : Boolean = false
+
+    private var ObjectiveStatus : ObjectiveStatus? = null
 
     private var runnable : Runnable = Runnable {
 
@@ -58,6 +64,16 @@ class ObjectiveProgressBar {
 
         if(isRunning) {
             doTheAnim()
+        }else{
+            if(this.ObjectiveStatus!= null){
+                when(this.ObjectiveStatus!!){
+                    com.example.objectiveday.models.ObjectiveStatus.TODO -> setAsTodo()
+                    com.example.objectiveday.models.ObjectiveStatus.DONE -> setAsDone()
+                }
+            }
+            else{
+                //this.imageView!!.visibility = View.GONE
+            }
         }
 
     }
@@ -73,6 +89,9 @@ class ObjectiveProgressBar {
         this.image3  = BitmapFactory.decodeResource(context.resources, R.drawable.pb_3)
         this.image4  = BitmapFactory.decodeResource(context.resources, R.drawable.pb_4)
         this.image5  = BitmapFactory.decodeResource(context.resources, R.drawable.pb_5)
+
+        this.done = BitmapFactory.decodeResource(context.resources, R.drawable.ic_check)
+        this.todo = BitmapFactory.decodeResource(context.resources, R.drawable.ic_app_todo)
         doTheAnim()
     }
 
@@ -87,6 +106,22 @@ class ObjectiveProgressBar {
 
     public fun stopTheAnim(){
         this.isRunning = false
+    }
+
+    public fun setAsDone(){
+        this.imageView!!.setImageBitmap(done!!)
+        this.ObjectiveStatus = com.example.objectiveday.models.ObjectiveStatus.DONE
+        stopTheAnim()
+    }
+
+    public fun setAsTodo(){
+        this.imageView!!.setImageBitmap(todo!!)
+        this.ObjectiveStatus = com.example.objectiveday.models.ObjectiveStatus.TODO
+        stopTheAnim()
+    }
+
+    public fun getObjectiveStatus(): ObjectiveStatus?{
+        return this.ObjectiveStatus
     }
 
 

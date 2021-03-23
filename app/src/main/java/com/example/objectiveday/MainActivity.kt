@@ -17,6 +17,7 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.objectiveday.adapters.ObjectiveListAdapter
+import com.example.objectiveday.adapters.ObjectiveMessageStatus
 import com.example.objectiveday.controllers.ButtonSignIn
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.database.ObjectiveDBHelper
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
+        printMessages()
         //Test this is a test to load file
         //DataSingleton.instance.testReadJsonObjectOnFile(this.applicationContext)
       // DataSingleton.instance.testWriteJsonObjectOnFile(this.applicationContext)
@@ -418,5 +419,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {
         super.onActivityReenter(resultCode, data)
+    }
+
+    private fun printMessages(){
+        ObjectiveMessageStatus.values().forEach {
+            System.out.println(it.message)
+        }
     }
 }

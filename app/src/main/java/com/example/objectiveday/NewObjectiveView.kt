@@ -39,7 +39,7 @@ class NewObjectiveView : AppCompatActivity() {
         if(objectiveModel != null){
             objectiveBinding  = controller.prepareBinding(objectiveBinding, objectiveModel)!!
             objectiveBinding.moreDetailsLayout.visibility = View.VISIBLE
-            objectiveBinding.details.isEnabled = false
+            objectiveBinding.buttondetails.isEnabled = false
             objectiveBinding.moreDetailsLayout.isEnabled = false
             objectiveBinding.descriptionTxt.isEnabled = false
             objectiveBinding.qrCode.visibility = View.GONE
@@ -50,8 +50,10 @@ class NewObjectiveView : AppCompatActivity() {
         else{
             objectiveBinding  = controller.prepareBinding(objectiveBinding, ObjectiveModel.Builder().build())!!
             objectiveBinding.moreDetailsLayout.visibility = View.VISIBLE
-            objectiveBinding.details.isEnabled = false
+            objectiveBinding.buttondetails.isEnabled = false
             objectiveBinding.descriptionTxt.isEnabled = true
+            objectiveBinding.qrcodeimage.isEnabled = false
+            objectiveBinding.actiontodo.isEnabled = false
         }
 
 

@@ -14,6 +14,7 @@ import java.io.*
 import java.nio.file.Files
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 class DataSingleton {
 
@@ -207,6 +208,7 @@ class DataSingleton {
         var needToBeDoneOnTheDay = lastDone == null || lastDone!!.isBefore(dayStart)
         if(!apiObjectives.time.isNullOrBlank() && checkTime){
             var localTime = Utils.stringToTime(apiObjectives.time)
+            if(localTime == null) localTime = LocalTime.now().withHour(0).withMinute(0)
             var plusHour = date.toLocalTime().plusHours(1)
             return needToBeDoneOnTheDay && localTime!!.isBefore(plusHour)
         }else return needToBeDoneOnTheDay

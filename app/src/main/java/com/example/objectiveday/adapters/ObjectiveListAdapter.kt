@@ -45,7 +45,9 @@ class ObjectiveListAdapter(private val context: Context, private val application
         //binding?.objectiveMainModel = getItem(position) as ObjectiveModel
 
 
-
+        binding.objectiveAllLayout.setOnClickListener(View.OnClickListener {
+            System.out.println("HHHHHH")
+        })
         //if not found in map add...
         this.mapObjectiveView[position] = binding
         return binding.root

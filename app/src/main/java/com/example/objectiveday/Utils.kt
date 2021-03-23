@@ -42,5 +42,10 @@ class Utils {
             var dtf:DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
             return dtf.format(localDateTime)
         }
+
+        fun getEmojiByUnicode(unicode: Int?): String? {
+            if(unicode == null) return ""
+            return String(Character.toChars(unicode))
+        }
     }
 }

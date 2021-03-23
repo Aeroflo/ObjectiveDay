@@ -6,14 +6,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.objectiveday.NotificationThread.NotificationHandler
 import com.example.objectiveday.adapters.ObjectiveListAdapter
+import com.example.objectiveday.adapters.ObjectiveMessageStatus
 import com.example.objectiveday.controllers.ObjectiveWeekController
 import com.example.objectiveday.controllers.TokenSingleton
 import com.example.objectiveday.databinding.ObjectiveBinding
@@ -38,6 +41,7 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
 
     var objectiveList : List<ObjectiveModel> = ArrayList<ObjectiveModel>()
     var listAdapter : ObjectiveListAdapter? = null
+    var objectiveStatus : TextView? = null
 
     var apiToken : APIToken? = null
     var url : String? = null
@@ -75,22 +79,10 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
             System.out.println("Touch :"+id)
         })
 
-
+        objectiveStatus = mainBinding.objectivestatusmsg
         if(isDemo != null){
             updateObjectiveUIFromAPI() //test
-            /*for (i in 0..100) {
-                var objectiveModel: ObjectiveModel = ObjectiveModel.Builder()
-                    .withDescription("This is a new objective test " + i)
-                    .withId(0)
-                    .withDayChecker(i)
-                    .withNbTriggered(100)
-                    .withNbDone(i)
-                    .build()
-
-                //objectiveModel.getNextDate(0)
-                list.add(objectiveModel)
-            }*/
-            updateListUI(list)
+            updateListUI(list, ObjectiveMessageStatus.MAIN)
         }else{
                 System.out.println("GET OVBJECTIVE FROM API")
                 updateObjectiveUIFromAPI()
@@ -111,13 +103,13 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
                     var objectiveFilter = ObjectiveFilter.Builder()
                     objectiveFilter.withFilterType(ObjectiveFilterType.DONE)
                     var todo = DataSingleton.instance.getDataFiltered(objectiveFilter.build())
-                    updateObjectiveUIFromAPI(todo)
+                    updateObjectiveUIFromAPI(todo, ObjectiveMessageStatus.DONE)
                 }
                 R.id.navigation_todo -> {
                     var objectiveFilter = ObjectiveFilter.Builder()
                     objectiveFilter.withFilterType(ObjectiveFilterType.TODO)
                     var done = DataSingleton.instance.getDataFiltered(objectiveFilter.build())
-                    updateObjectiveUIFromAPI(done)
+                    updateObjectiveUIFromAPI(done, ObjectiveMessageStatus.TODO)
                 }
             }
             true
@@ -134,32 +126,48 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
                 objectiveModels.forEach { o ->
                     (objectiveList as ArrayList<ObjectiveModel>).add(o.toModel())
                 }
-                runOnUiThread {updateListUI(objectiveList)}
+                runOnUiThread {updateListUI(objectiveList, ObjectiveMessageStatus.MAIN)}
             }.start()
 
         return
     }
 
-    fun updateObjectiveUIFromAPI(apiObjectives: List<APIObjectives>){
+    fun updateObjectiveUIFromAPI(apiObjectives: List<APIObjectives>, objectiveMessageStatus: ObjectiveMessageStatus){
         Thread {
             val apiService = RestAPIService(TokenSingleton.instance.url)
             objectiveList = arrayListOf<ObjectiveModel>()
             apiObjectives.forEach { o ->
                 (objectiveList as ArrayList<ObjectiveModel>).add(o.toModel())
             }
-            runOnUiThread {updateListUI(objectiveList)}
+            runOnUiThread {updateListUI(objectiveList, objectiveMessageStatus)}
         }.start()
 
         return
     }
 
-    fun updateListUI(objectivesModels : List<ObjectiveModel>){
+    fun updateListUI(objectivesModels : List<ObjectiveModel>, objectiveMessageStatus: ObjectiveMessageStatus){
         this.listAdapter?.updateDataSource(objectivesModels);
         //this.listAdapter?.notifyDataSetChanged()
+        setMessage(objectivesModels.isEmpty(), objectiveMessageStatus)
     }
 
-    fun popToast(msg : String){
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+    fun setMessage(listIsEmpty : Boolean , objectiveMessageStatus: ObjectiveMessageStatus){
+        if(!listIsEmpty){
+            this.objectiveStatus!!.visibility = View.GONE
+        }
+        else{
+            this.objectiveStatus!!.visibility = View.VISIBLE
+            var message : String? = objectiveMessageStatus.message
+
+            if(message == null){
+                this.objectiveStatus!!.visibility = View.GONE
+            }
+            else{
+                this.objectiveStatus!!.visibility = View.VISIBLE
+                this.objectiveStatus!!.text = message
+            }
+
+        }
     }
 
     fun AppCompatActivity.hideKeyboard() {
@@ -224,7 +232,7 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
     override fun sendInput(filter: ObjectiveFilter?) {
         if(filter != null){
             var apiObjectivesFiltered = DataSingleton.instance.getDataFiltered(filter)
-            updateObjectiveUIFromAPI(apiObjectivesFiltered)
+            updateObjectiveUIFromAPI(apiObjectivesFiltered, ObjectiveMessageStatus.FILTERED)
         }
     }
 }
