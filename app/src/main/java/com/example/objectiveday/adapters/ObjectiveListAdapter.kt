@@ -12,7 +12,9 @@ import androidx.fragment.app.FragmentManager
 import com.example.objectiveday.R
 import com.example.objectiveday.controllers.ObjectiveBindingController
 import com.example.objectiveday.databinding.ObjectiveMainObjectLayoutBinding
+import com.example.objectiveday.internalData.DataSingleton
 import com.example.objectiveday.models.ObjectiveModel
+import com.example.objectiveday.webservices.apimodels.APIObjectives
 import kotlin.collections.HashMap
 
 class ObjectiveListAdapter(private val context: Context, private val applicationContext: Context,
@@ -50,6 +52,30 @@ class ObjectiveListAdapter(private val context: Context, private val application
         })
         //if not found in map add...
         this.mapObjectiveView[position] = binding
+
+
+        //test delete
+        binding.deleteimg.setOnClickListener{
+            var objectiveModel  = binding.objectiveMainModel
+            var apiObjectives : APIObjectives? = APIObjectives(objectiveModel!!.id, objectiveModel!!.parentId, objectiveModel!!.description,
+                objectiveModel!!.isMonday, objectiveModel!!.isTuesday, objectiveModel!!.isWednesday, objectiveModel!!.isThursday, objectiveModel!!.isFriday, objectiveModel!!.isSaturday, objectiveModel!!.isSunday,
+                null, null, "", "", null, true, null,  null)
+            if(apiObjectives == null){
+                Toast.makeText(this.context, "Objective not deleted", Toast.LENGTH_LONG).show()
+            }
+            else {
+                var deleted = DataSingleton.instance.deleteAPIObjectiveLocal(this.context, apiObjectives!!)
+                if(deleted){
+                    controller.rundeleteAnimation(binding)
+                    Toast.makeText(this.context, "Deleted", Toast.LENGTH_LONG).show()
+                    var list = dataSource.toMutableList()
+                    list.removeAt(position)
+
+                    this.updateDataSource(list.toList())
+                }
+                else Toast.makeText(this.context, "Objective not deleted", Toast.LENGTH_LONG).show()
+            }
+        }
         return binding.root
     }
 

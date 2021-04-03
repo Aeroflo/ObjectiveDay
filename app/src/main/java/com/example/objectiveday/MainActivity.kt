@@ -253,37 +253,13 @@ class MainActivity : AppCompatActivity() {
         //val pbApp : ObjectiveProgressBar = ObjectiveProgressBar(pbTest, this.applicationContext)
 
 
-        val testTimeButton : Button = findViewById(R.id.testTimePicker)
-        getTime(testTimeButton, this)
-    }
-
-    fun getTime(button: Button, context: Context){
-
-        val cal = Calendar.getInstance()
-
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
-            cal.set(Calendar.HOUR_OF_DAY, hour)
-            cal.set(Calendar.MINUTE, minute)
-
-            //textView.text = SimpleDateFormat("HH:mm").format(cal.time)
+        val loginlocal : Button = findViewById(R.id.accesslocal)
+        loginlocal.setOnClickListener{
+            accessLocal()
         }
 
-        button.setOnClickListener {
-            //TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
-            var filter = ObjectiveFilterDialog()
-                //.onDismiss(this)
-                //.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
-            //var dialogInterface : DialogInterface = DialogInterface()
-            //filter.onDismiss(dialogInterface)
-            //filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
-            //filter.setTargetFragment(this@MainActivity, 22)
-            filter.show(supportFragmentManager, ObjectiveFilterDialog.TAG)
-            //filter.getFilterButtonT()!!.setOnClickListener {
-            //    System.out.println("FILTER pressed")
-            //    filter.dismiss()
-            //}
-        }
     }
+
 
 
 
@@ -354,16 +330,16 @@ class MainActivity : AppCompatActivity() {
                 settings.invalidate();
                 return true
             }
-            R.id.demo -> {
-                    DataSingleton.instance.loadAPIObjectives(this.applicationContext)
-                    Toast.makeText(this.applicationContext, "Access demo ", Toast.LENGTH_LONG).show()
-                    val myIntent = Intent(this, ObjectiveView::class.java)
-                    myIntent.putExtra("isDemo", "true") //Optional parameters
-                    this.startActivity(myIntent)
-                return true
-            }
             else -> return super.onOptionsItemSelected(item);
         }
+    }
+
+    private fun accessLocal(){
+        DataSingleton.instance.loadAPIObjectives(this.applicationContext)
+        Toast.makeText(this.applicationContext, "Access demo ", Toast.LENGTH_LONG).show()
+        val myIntent = Intent(this, ObjectiveView::class.java)
+        myIntent.putExtra("isDemo", "true") //Optional parameters
+        this.startActivity(myIntent)
     }
 
     override fun onResume() {

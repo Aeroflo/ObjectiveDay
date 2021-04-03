@@ -235,6 +235,15 @@ class DataSingleton {
         else return null;
     }
 
+    fun deleteAPIObjectiveLocal(context: Context, apiObjectives: APIObjectives) : Boolean{
+        if(deleteOnListDate(apiObjectives)){
+            var deleted = writeAllInAJsonFile(context)
+            return deleted
+        }
+
+        return false
+    }
+
     fun markObjectiveAsDone(context: Context, objectiveModel: ObjectiveModel?) : APIObjectives?{
         var now = LocalDateTime.now()
         if(objectiveModel != null){
@@ -250,6 +259,17 @@ class DataSingleton {
     fun updateListData(apiObjectives: APIObjectives){
         if(apiObjectives.id != null) existingObjectives.put(apiObjectives.id, apiObjectives)
         else if(!apiObjectives.description.isNullOrBlank()) newObjectives.put(apiObjectives.description, apiObjectives )
+    }
+
+    fun deleteOnListDate(apiObjectives: APIObjectives) : Boolean {
+        var deletedObjective : APIObjectives? = null
+        if(apiObjectives.id != null){
+            deletedObjective = existingObjectives.remove(apiObjectives.id)
+        }else if(!apiObjectives.description.isNullOrBlank()){
+            deletedObjective = newObjectives.remove(apiObjectives.description)
+        }
+        if(deletedObjective != null) return true
+        else return false
     }
 
     fun synchToWebservice(context: Context){

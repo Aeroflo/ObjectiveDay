@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
-                tools:visibility="gone">
+                tools:visibility="visible">
 
 
                 <LinearLayout
@@ -105,6 +105,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.9"
                         android:text="Details" />
+
+
 
                     <Switch
                         android:id="@+id/notifySW"
@@ -223,18 +225,34 @@
                             android:layout_weight="0.5"
                             android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/timePicker"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:id="@+id/timepickerlayout"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="Time: "
-                                android:textStyle="bold" />
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/timePicker"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:text="Time"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/timeimg"
+                                    android:layout_width="70px"
+                                    android:layout_height="70px"
+                                    android:layout_gravity="center"
+                                    android:layout_weight="1"
+                                    android:src="@drawable/ic_access_time" />
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/time"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:gravity="center"
@@ -248,18 +266,34 @@
                             android:layout_weight="0.5"
                             android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/last_time_done_title"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:id="@+id/lastdonetimelayout"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
-                                android:gravity="center"
-                                android:text="Last time done"
-                                android:textStyle="bold" />
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/last_time_done_title"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:text="Done"
+                                    android:textStyle="bold" />
+
+                                <ImageView
+                                    android:id="@+id/resetdoneimg"
+                                    android:layout_width="70px"
+                                    android:layout_height="70px"
+                                    android:layout_gravity="center"
+                                    android:layout_weight="1"
+                                    android:src="@drawable/ic_cancel_presentation" />
+                            </LinearLayout>
 
                             <TextView
                                 android:id="@+id/lasttimedonevalue"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:gravity="center"
@@ -339,22 +373,26 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <include
-                        android:id="@+id/qrCode"
-                        layout="@layout/qr_code_layout"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="gone" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
 
                     <include
                         android:id="@+id/saveProgress"
                         layout="@layout/signinbutton"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="visible" />
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        android:layout_weight="1.9"
+                        />
+
+                    <ImageView
+                        android:id="@+id/deleteimg"
+                        android:layout_width="100px"
+                        android:layout_height="100px"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_delete_forever"
+                        android:layout_weight="0.1"/>
                 </LinearLayout>
 
 

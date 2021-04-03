@@ -40,6 +40,7 @@
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="vertical"
             tools:layout_editor_absoluteX="14dp"
             tools:layout_editor_absoluteY="14dp">
@@ -117,12 +118,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <Button
-                android:id="@+id/testTimePicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="testTimePicker" />
-
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/loginsettings"
                 android:layout_width="match_parent"
@@ -160,6 +155,12 @@
                 android:layout_height="wrap_content"
                 android:text="Issues"
                 android:visibility="gone" />
+
+            <Button
+                android:id="@+id/accesslocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Access local" />
 
 
         </LinearLayout>

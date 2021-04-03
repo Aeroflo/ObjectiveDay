@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Message
+import android.text.Layout
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -183,13 +184,22 @@ class ObjectiveBindingController {
 
         }
 
+        //reset last time done
+        binding.resetdoneimg.setOnClickListener{
+            binding.objectiveMainModel?.lastDoneTime = null
+            verifyObjectiveStatusAndValidate(binding)
+            binding.invalidateAll()
+        }
+
+
+
 
         return binding
     }
 
     fun getTime( binding : ObjectiveMainObjectLayoutBinding,  context: Context){
 
-        val button : TextView = binding.timePicker
+        val button = binding.timepickerlayout
 
 
         button.setOnClickListener {
@@ -375,5 +385,40 @@ class ObjectiveBindingController {
                             objectiveModel.isMonday, objectiveModel.isTuesday, objectiveModel.isWednesday, objectiveModel.isThursday, objectiveModel.isFriday, objectiveModel.isSaturday, objectiveModel.isSunday,
                             time, notify, "", "", null, true, null,  lastDoneTime)
         return apiObjective
+    }
+
+    private fun colapseHideDetails(binding : ObjectiveMainObjectLayoutBinding){
+        val view = binding.moreDetailsLayout
+        val imageView = binding.buttondetails as ImageView
+        if(view.visibility == View.GONE){
+            imageView.animate().rotation(180.0f).start()
+            view.visibility = View.VISIBLE
+            val animation = AnimationUtils.loadAnimation(context, R.anim.slide_left)
+            view.startAnimation(animation)
+            mHandler.post {
+                binding.invalidateAll()
+            }
+        } else{
+            imageView.animate().rotation(360.0f).start()
+            val animation = AnimationUtils.loadAnimation(context, R.anim.slide_right_out)
+            view.startAnimation(animation)
+            Handler().postDelayed({
+                view.visibility = View.GONE
+            }, 200)
+        }
+    }
+
+    private fun colapseAll(binding : ObjectiveMainObjectLayoutBinding){
+        var mainView = binding.root
+        val animation = AnimationUtils.loadAnimation(context, R.anim.slide_left)
+        mainView.visibility = View.INVISIBLE
+        mainView.startAnimation(animation)
+        binding.invalidateAll()
+    }
+
+    public fun rundeleteAnimation(binding : ObjectiveMainObjectLayoutBinding){
+        binding.root.isClickable = false;
+        colapseHideDetails(binding)
+        colapseAll(binding)
     }
 }

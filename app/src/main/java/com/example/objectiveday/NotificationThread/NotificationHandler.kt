@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
+import com.example.objectiveday.ObjectiveView
 import com.example.objectiveday.R
 import com.example.objectiveday.TodoActivity
 import com.example.objectiveday.controllers.TokenSingleton
@@ -90,7 +91,7 @@ class NotificationHandler {
                         title = title.append("important objectives to do today!")
 
 
-                    val resultIntent = Intent(context!!, TodoActivity::class.java)
+                    val resultIntent = Intent(context!!, ObjectiveView::class.java)
                     resultIntent.putExtra("todo", objectiveModels.toTypedArray())
                     val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(context!!).run {
                         // Add the intent, which inflates the back stack

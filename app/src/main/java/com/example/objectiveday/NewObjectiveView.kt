@@ -42,7 +42,7 @@ class NewObjectiveView : AppCompatActivity() {
             objectiveBinding.buttondetails.isEnabled = false
             objectiveBinding.moreDetailsLayout.isEnabled = false
             objectiveBinding.descriptionTxt.isEnabled = false
-            objectiveBinding.qrCode.visibility = View.GONE
+            //objectiveBinding.qrCode.visibility = View.GONE
 
             //var textviewSave : TextView = objectiveBinding.saveProgress.getViewById(R.id.saveTextView) as TextView
             //textviewSave.text = "Add this objective in  my list"

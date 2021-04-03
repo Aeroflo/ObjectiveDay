@@ -58,10 +58,18 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
 
         val intent = intent
         isDemo = intent.getStringExtra("isDemo")
+        var listTodo  : List<ObjectiveModel>? = null
         try{
             apiToken = intent.getSerializableExtra("token") as APIToken
             url = intent.getStringExtra("url")
+
         }catch(e : Exception){
+        }
+
+        try{
+            var objectiveTodo = intent.getSerializableExtra("todo") as Array<ObjectiveModel>?
+            if(objectiveTodo != null && !objectiveTodo!!.isEmpty()) listTodo = objectiveTodo!!.asList()
+        } catch(e:Exception){
 
         }
 
@@ -80,7 +88,11 @@ class ObjectiveView : AppCompatActivity(), ObjectiveFilterDialog.OnInputListener
         })
 
         objectiveStatus = mainBinding.objectivestatusmsg
-        if(isDemo != null){
+        if(listTodo != null){
+            updateListUI(listTodo!!.toList(), ObjectiveMessageStatus.TODO)
+            mainBinding.navigationView.selectedItemId = R.id.navigation_todo
+        }
+        else if(isDemo != null){
             updateObjectiveUIFromAPI() //test
             updateListUI(list, ObjectiveMessageStatus.MAIN)
         }else{
